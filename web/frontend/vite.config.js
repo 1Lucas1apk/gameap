@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue'
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
-import { resolve } from 'path'
-import { closeSync, openSync, readFileSync } from 'fs'
+import { join, resolve } from 'path'
+import { closeSync, copyFileSync, mkdirSync, openSync, readFileSync } from 'fs'
 import { createHash } from 'crypto'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
@@ -54,6 +54,42 @@ const themeCss = () => {
     }
 }
 
+// With SBOM_PACKAGES_DIR set, copies package.json of every npm package shipped
+// in the bundle into that directory, keeping the node_modules layout, for the
+// release SBOM. Chunk modules leave out tree-shaken code; CSS and fonts pulled
+// in through Sass @import are not modules and show up only as watch files.
+const sbomPackages = (dir) => ({
+    name: 'gameap-sbom-packages',
+    apply: 'build',
+    generateBundle(_, bundle) {
+        if (!dir) {
+            return
+        }
+
+        const moduleIds = new Set(this.getModuleIds())
+        const files = this.getWatchFiles().filter((file) => !moduleIds.has(file))
+        for (const output of Object.values(bundle)) {
+            if (output.type === 'chunk') {
+                files.push(...Object.keys(output.modules))
+            }
+        }
+
+        const roots = new Set()
+        for (const file of files) {
+            const match = /^([^\0]*\/node_modules\/(?:@[^/]+\/)?[^/]+)\//.exec(file)
+            if (match) {
+                roots.add(match[1])
+            }
+        }
+
+        for (const root of roots) {
+            const target = join(dir, root.slice(root.indexOf('/node_modules/') + 1))
+            mkdirSync(target, { recursive: true })
+            copyFileSync(join(root, 'package.json'), join(target, 'package.json'))
+        }
+    },
+})
+
 export default defineConfig({
     plugins: [
         viteCommonjs(),
@@ -64,6 +100,7 @@ export default defineConfig({
         }),
         themeCss(),
         keepGitkeep(),
+        sbomPackages(process.env.SBOM_PACKAGES_DIR),
     ],
     base: '/',
     publicDir: 'public',

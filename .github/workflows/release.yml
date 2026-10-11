@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+      # Bump together: SYFT_SHA256 is the syft_<version>_linux_amd64.tar.gz line
+      # of syft_<version>_checksums.txt in the anchore/syft release.
+      SYFT_VERSION: 1.54.1
+      SYFT_SHA256: c069905b391cc4c20a5ba65ad5c10be2a7ba074f8ea6ad203e24d14e303dad47
     strategy:
       matrix:
         goos: ["linux", "windows", "darwin"]
@@ -29,6 +33,8 @@ jobs:
           node-version: '24.x'
 
       - name: Build UI
+        env:
+          SBOM_PACKAGES_DIR: ${{ runner.temp }}/sbom/web/frontend
         run: |
           cd web/frontend
           npm ci
@@ -47,6 +53,46 @@ jobs:
           project_path: "./cmd/gameap"
           ldflags: -X "github.com/gameap/gameap/internal/application/defaults.Version=${{ env.APP_VERSION }}" -X "github.com/gameap/gameap/internal/application/defaults.BuildDate=${{ env.BUILD_TIME }}"
           binary_name: "gameap"
+
+      - name: Install Syft
+        run: |
+          curl -fsSL -o "${RUNNER_TEMP}/syft.tar.gz" \
+            "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          echo "${SYFT_SHA256}  ${RUNNER_TEMP}/syft.tar.gz" | sha256sum -c -
+          tar -xzf "${RUNNER_TEMP}/syft.tar.gz" -C "${RUNNER_TEMP}" syft
+
+      # The SBOM covers the shipped binary: Go modules from its build info and the
+      # npm packages that Vite bundled into the embedded UI (see vite.config.js).
+      - name: Generate SBOM
+        env:
+          ASSET_DIR: ${{ steps.build.outputs.release_asset_dir }}
+          TARGET: ${{ matrix.goos }}-${{ matrix.goarch }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SYFT_CHECK_FOR_APP_UPDATE: false
+          SYFT_FILE_METADATA_SELECTION: none
+        run: |
+          mkdir -p "${RUNNER_TEMP}/sbom"
+          cp "${ASSET_DIR}"/* "${RUNNER_TEMP}/sbom/"
+
+          # Keep "<tag>-<os>-<arch>" out of the name: gameapctl installs the first
+          # release asset whose name contains it.
+          sbom="$(dirname "${ASSET_DIR}")/gameap-${APP_VERSION}-sbom-${TARGET}.cdx.json"
+
+          "${RUNNER_TEMP}/syft" scan "dir:${RUNNER_TEMP}/sbom" \
+            --override-default-catalogers go-module-binary-cataloger,javascript-package-cataloger \
+            --select-catalogers -file \
+            --enrich golang \
+            --source-name gameap \
+            --source-version "${APP_VERSION}" \
+            --source-supplier GameAP \
+            -o "cyclonedx-json@1.6=${sbom}"
+
+          for ecosystem in golang npm; do
+            jq -e --arg prefix "pkg:${ecosystem}/" 'any(.components[]; (.purl // "") | startswith($prefix))' "${sbom}" > /dev/null \
+              || { echo "::error::SBOM has no ${ecosystem} packages"; exit 1; }
+          done
+
+          gh release upload "${APP_VERSION}" "${sbom}" --clobber --repo "${GITHUB_REPOSITORY}"
 
       - name: Upload assets to S3
         if: ${{ env.S3_ENDPOINT != '' }}
