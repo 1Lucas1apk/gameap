@@ -54,7 +54,11 @@ jobs:
           ldflags: -X "github.com/gameap/gameap/internal/application/defaults.Version=${{ env.APP_VERSION }}" -X "github.com/gameap/gameap/internal/application/defaults.BuildDate=${{ env.BUILD_TIME }}"
           binary_name: "gameap"
 
+      # SBOM failures do not fail the job: the archives are already on the GitHub
+      # release, and a failed job would leave S3 and releases.json behind it.
       - name: Install Syft
+        id: syft
+        continue-on-error: true
         run: |
           curl -fsSL -o "${RUNNER_TEMP}/syft.tar.gz" \
             "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz"
@@ -64,6 +68,8 @@ jobs:
       # The SBOM covers the shipped binary: Go modules from its build info and the
       # npm packages that Vite bundled into the embedded UI (see vite.config.js).
       - name: Generate SBOM
+        if: steps.syft.outcome == 'success'
+        continue-on-error: true
         env:
           ASSET_DIR: ${{ steps.build.outputs.release_asset_dir }}
           TARGET: ${{ matrix.goos }}-${{ matrix.goarch }}
@@ -76,7 +82,7 @@ jobs:
 
           # Keep "<tag>-<os>-<arch>" out of the name: gameapctl installs the first
           # release asset whose name contains it.
-          sbom="$(dirname "${ASSET_DIR}")/gameap-${APP_VERSION}-sbom-${TARGET}.cdx.json"
+          sbom="${RUNNER_TEMP}/gameap-${APP_VERSION}-sbom-${TARGET}.cdx.json"
 
           "${RUNNER_TEMP}/syft" scan "dir:${RUNNER_TEMP}/sbom" \
             --override-default-catalogers go-module-binary-cataloger,javascript-package-cataloger \
@@ -93,6 +99,10 @@ jobs:
           done
 
           gh release upload "${APP_VERSION}" "${sbom}" --clobber --repo "${GITHUB_REPOSITORY}"
+
+          # The S3 step uploads the whole asset dir, so only a checked SBOM that
+          # is on the release goes there.
+          mv "${sbom}" "$(dirname "${ASSET_DIR}")/"
 
       - name: Upload assets to S3
         if: ${{ env.S3_ENDPOINT != '' }}
