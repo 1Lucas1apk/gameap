@@ -40,6 +40,7 @@ const icons = {
   gta: 'game-grand-theft-auto',
   halflife: 'game-half-life',
   hurtworld: 'game-hurtworld',
+  hytale: 'game-hytale',
   l4d2: 'game-left-4-dead',
   l4d: 'game-left-4-dead',
   minecraft: 'game-minecraft',
