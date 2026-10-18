@@ -197,6 +197,7 @@ export const defaultIconMap = {
   "game-grand-theft-auto": svgAsset('grand-theft-auto'),
   "game-half-life": svgAsset('half-life'),
   "game-hurtworld": svgAsset('hurtworld'),
+  "game-hytale": svgAsset('hytale'),
   "game-left-4-dead": svgAsset('left-4-dead'),
   "game-minecraft": svgAsset('minecraft'),
   "game-minecraft-creeper": svgAsset('minecraft-creeper'),
