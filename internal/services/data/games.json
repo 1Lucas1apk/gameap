@@ -2720,8 +2720,8 @@
       "steam_app_id_linux": 0,
       "steam_app_id_windows": 0,
       "steam_app_set_config": "",
-      "remote_repository_linux": "https://cdn.gameap.com/hytail/hytale-linux-amd64.tar.gz",
-      "remote_repository_windows": "https://cdn.gameap.com/hytail/hytale-windows-amd64.zip",
+      "remote_repository_linux": "https://cdn.gameap.com/hytale-runner/latest/hytale-linux-amd64.tar.gz",
+      "remote_repository_windows": "https://cdn.gameap.com/hytale-runner/latest/hytale-windows-amd64.zip",
       "mods": [
         {
           "id": 0,
@@ -2749,12 +2749,266 @@
                   "info": "Arbeitsspeicher. Max. Heap-Größe (Xmx)"
                 }
               }
+            },
+            {
+              "var": "min_memory",
+              "default": "1G",
+              "info": "Min memory. Initial heap size (Xms)",
+              "admin_var": false,
+              "type": "",
+              "description": "",
+              "allow_custom": false,
+              "options": null,
+              "i18n": {
+                "ru": {
+                  "info": "Память: начальный размер кучи (Xms)"
+                },
+                "es": {
+                  "info": "Memoria mínima. Tamaño inicial del heap (Xms)"
+                },
+                "de": {
+                  "info": "Min. Arbeitsspeicher. Initiale Heap-Größe (Xms)"
+                }
+              }
+            },
+            {
+              "var": "patchline",
+              "default": "release",
+              "info": "Update channel (patchline)",
+              "admin_var": true,
+              "type": "select",
+              "description": "Channel the server files are downloaded from. It applies when the files are missing or the pinned server version is not installed; changing it does not replace installed files.",
+              "allow_custom": false,
+              "options": [
+                {
+                  "value": "release",
+                  "label": "Release",
+                  "i18n": {
+                    "ru": {
+                      "label": "Релиз"
+                    },
+                    "es": {
+                      "label": "Versión estable"
+                    },
+                    "de": {
+                      "label": "Release"
+                    }
+                  }
+                },
+                {
+                  "value": "pre-release",
+                  "label": "Pre-release",
+                  "i18n": {
+                    "ru": {
+                      "label": "Предрелиз"
+                    },
+                    "es": {
+                      "label": "Versión preliminar"
+                    },
+                    "de": {
+                      "label": "Vorabversion"
+                    }
+                  }
+                }
+              ],
+              "i18n": {
+                "ru": {
+                  "info": "Канал обновлений (patchline)",
+                  "description": "Канал, из которого скачиваются файлы сервера. Используется, когда файлов нет или закреплённая версия сервера не установлена; смена канала не заменяет уже установленные файлы."
+                },
+                "es": {
+                  "info": "Canal de actualizaciones (patchline)",
+                  "description": "Canal del que se descargan los archivos del servidor. Se usa cuando faltan los archivos o la versión fijada no está instalada; cambiarlo no reemplaza los archivos instalados."
+                },
+                "de": {
+                  "info": "Update-Kanal (Patchline)",
+                  "description": "Kanal, aus dem die Serverdateien heruntergeladen werden. Er greift, wenn die Dateien fehlen oder die festgelegte Serverversion nicht installiert ist; ein Wechsel ersetzt keine installierten Dateien."
+                }
+              }
+            },
+            {
+              "var": "server_version",
+              "default": "",
+              "info": "Server version",
+              "admin_var": true,
+              "type": "",
+              "description": "Leave empty to run the latest version and install updates. A pinned version is downloaded if missing, and updates are skipped. Only the latest version of the channel can be downloaded, so an older one works only if it is already installed.",
+              "allow_custom": false,
+              "options": null,
+              "rules": {
+                "max_length": 64
+              },
+              "i18n": {
+                "ru": {
+                  "info": "Версия сервера",
+                  "description": "Оставьте пустым, чтобы запускать последнюю версию и ставить обновления. Закреплённая версия скачивается, если её нет, а обновления пропускаются. Скачать можно только последнюю версию канала, поэтому более старая работает, лишь если уже установлена."
+                },
+                "es": {
+                  "info": "Versión del servidor",
+                  "description": "Dejar vacío para usar la última versión e instalar las actualizaciones. Una versión fijada se descarga si falta y las actualizaciones se omiten. Solo se puede descargar la última versión del canal, así que una anterior solo funciona si ya está instalada."
+                },
+                "de": {
+                  "info": "Serverversion",
+                  "description": "Leer lassen, um die neueste Version zu nutzen und Updates zu installieren. Eine festgelegte Version wird bei Bedarf heruntergeladen, Updates werden übersprungen. Herunterladen lässt sich nur die neueste Version des Kanals, eine ältere funktioniert also nur, wenn sie bereits installiert ist."
+                }
+              }
+            },
+            {
+              "var": "allow_op",
+              "default": "false",
+              "info": "Allow operator commands (--allow-op)",
+              "admin_var": false,
+              "type": "bool",
+              "description": "Enables the in-game /op command. An operator has full control over the server.",
+              "allow_custom": false,
+              "options": null,
+              "true_value": "true",
+              "false_value": "false",
+              "i18n": {
+                "ru": {
+                  "info": "Разрешить команды оператора (--allow-op)",
+                  "description": "Включает игровую команду /op. Оператор получает полный контроль над сервером."
+                },
+                "es": {
+                  "info": "Permitir comandos de operador (--allow-op)",
+                  "description": "Habilita el comando /op en el juego. Un operador tiene control total sobre el servidor."
+                },
+                "de": {
+                  "info": "Operator-Befehle erlauben (--allow-op)",
+                  "description": "Aktiviert den Ingame-Befehl /op. Ein Operator hat volle Kontrolle über den Server."
+                }
+              }
+            },
+            {
+              "var": "accept_early_plugins",
+              "default": "false",
+              "info": "Load early plugins (--accept-early-plugins)",
+              "admin_var": false,
+              "type": "bool",
+              "description": "Early plugins load before the server starts and can modify its code. Hytale does not support them, so they may crash the server.",
+              "allow_custom": false,
+              "options": null,
+              "true_value": "true",
+              "false_value": "false",
+              "i18n": {
+                "ru": {
+                  "info": "Загружать ранние плагины (--accept-early-plugins)",
+                  "description": "Ранние плагины загружаются до запуска сервера и могут изменять его код. Hytale их не поддерживает, поэтому они могут ронять сервер."
+                },
+                "es": {
+                  "info": "Cargar plugins tempranos (--accept-early-plugins)",
+                  "description": "Los plugins tempranos se cargan antes de iniciar el servidor y pueden modificar su código. Hytale no los admite, así que pueden bloquear el servidor."
+                },
+                "de": {
+                  "info": "Early-Plugins laden (--accept-early-plugins)",
+                  "description": "Early-Plugins werden vor dem Serverstart geladen und können dessen Code verändern. Hytale unterstützt sie nicht, daher können sie den Server zum Absturz bringen."
+                }
+              }
+            },
+            {
+              "var": "backup",
+              "default": "false",
+              "info": "Automatic backups",
+              "admin_var": false,
+              "type": "bool",
+              "description": "Backs up the world at the set interval into the backup directory.",
+              "allow_custom": false,
+              "options": null,
+              "true_value": "true",
+              "false_value": "false",
+              "i18n": {
+                "ru": {
+                  "info": "Автоматические бэкапы",
+                  "description": "Сохраняет резервную копию мира в каталог бэкапов с заданным интервалом."
+                },
+                "es": {
+                  "info": "Copias de seguridad automáticas",
+                  "description": "Guarda una copia del mundo en el directorio de copias según el intervalo."
+                },
+                "de": {
+                  "info": "Automatische Backups",
+                  "description": "Sichert die Welt im festgelegten Intervall in das Backup-Verzeichnis."
+                }
+              }
+            },
+            {
+              "var": "backup_dir",
+              "default": "backups",
+              "info": "Backup directory",
+              "admin_var": true,
+              "type": "",
+              "description": "Path relative to the server directory.",
+              "allow_custom": false,
+              "options": null,
+              "i18n": {
+                "ru": {
+                  "info": "Каталог бэкапов",
+                  "description": "Путь относительно каталога сервера."
+                },
+                "es": {
+                  "info": "Directorio de copias de seguridad",
+                  "description": "Ruta relativa al directorio del servidor."
+                },
+                "de": {
+                  "info": "Backup-Verzeichnis",
+                  "description": "Pfad relativ zum Serververzeichnis."
+                }
+              }
+            },
+            {
+              "var": "backup_frequency",
+              "default": "30",
+              "info": "Backup interval, minutes",
+              "admin_var": false,
+              "type": "int",
+              "description": "",
+              "allow_custom": false,
+              "options": null,
+              "rules": {
+                "min": 1,
+                "max": 65535
+              },
+              "i18n": {
+                "ru": {
+                  "info": "Интервал бэкапов, минут"
+                },
+                "es": {
+                  "info": "Intervalo de copias de seguridad, minutos"
+                },
+                "de": {
+                  "info": "Backup-Intervall, Minuten"
+                }
+              }
+            },
+            {
+              "var": "jvm_args",
+              "default": "",
+              "info": "Additional JVM arguments",
+              "admin_var": true,
+              "type": "",
+              "description": "Space-separated, e.g. -XX:+UseZGC. Added after the memory options, so -Xms/-Xmx here override them.",
+              "allow_custom": false,
+              "options": null,
+              "i18n": {
+                "ru": {
+                  "info": "Дополнительные аргументы JVM",
+                  "description": "Через пробел, например -XX:+UseZGC. Добавляются после параметров памяти, поэтому -Xms/-Xmx отсюда их переопределяют."
+                },
+                "es": {
+                  "info": "Argumentos adicionales de la JVM",
+                  "description": "Separados por espacios, p. ej. -XX:+UseZGC. Se añaden después de las opciones de memoria, así que -Xms/-Xmx aquí las sustituyen."
+                },
+                "de": {
+                  "info": "Zusätzliche JVM-Argumente",
+                  "description": "Durch Leerzeichen getrennt, z. B. -XX:+UseZGC. Sie folgen auf die Speicheroptionen, daher überschreiben -Xms/-Xmx hier diese."
+                }
+              }
             }
           ],
           "remote_repository_linux": "",
           "remote_repository_windows": "",
-          "start_cmd_linux": "./hytale-runner run --ip {ip} --port {port} --min-memory 1G --memory {memory}",
-          "start_cmd_windows": "hytale-runner.exe run --ip {ip} --port {port} --min-memory 1G --memory {memory}",
+          "start_cmd_linux": "./hytale-runner run --ip={ip} --port={port} --min-memory={min_memory} --memory={memory} --patchline={patchline} --server-version={server_version} --allow-op={allow_op} --accept-early-plugins={accept_early_plugins} --backup={backup} --backup-dir={backup_dir} --backup-frequency={backup_frequency} --jvm-args={jvm_args}",
+          "start_cmd_windows": "hytale-runner.exe run --ip={ip} --port={port} --min-memory={min_memory} --memory={memory} --patchline={patchline} --server-version={server_version} --allow-op={allow_op} --accept-early-plugins={accept_early_plugins} --backup={backup} --backup-dir={backup_dir} --backup-frequency={backup_frequency} --jvm-args={jvm_args}",
           "kick_cmd": "",
           "ban_cmd": "",
           "chname_cmd": "",
