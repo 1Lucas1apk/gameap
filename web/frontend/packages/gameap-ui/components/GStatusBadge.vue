@@ -1,9 +1,12 @@
 <template>
-  <span :class="spanClass"><slot>{{ statusText }}</slot></span>
+  <span :class="spanClass">
+    <span v-if="dot" class="gi-badge-dot" aria-hidden="true"></span>
+    <slot>{{ statusText }}</slot>
+  </span>
 </template>
 
 <script setup>
-import {computed, defineProps} from "vue"
+import { computed } from 'vue'
 
 const props = defineProps({
   status: {
@@ -12,18 +15,29 @@ const props = defineProps({
   },
   text: {
     type: String,
+    default: '',
   },
   color: {
     type: String,
     default: '',
   },
+  dot: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const badgeClasses = {
-  waiting: 'badge-light',
+  waiting: 'badge-stone',
   working: 'badge-blue',
-  error: 'badge-red',
+  installing: 'badge-blue',
+  online: 'badge-green',
   success: 'badge-green',
+  offline: 'badge-red',
+  error: 'badge-red',
+  warning: 'badge-orange',
+  blocked: 'badge-orange',
+  disabled: 'badge-stone',
   canceled: 'badge-stone',
 }
 
@@ -36,18 +50,14 @@ const colorClasses = {
   stone: 'badge-stone',
 }
 
-// Status badges share a minimum width so they line up in table columns;
-// color badges are tags and hug their content.
 const spanClass = computed(() => {
   if (props.color) {
     const base = colorClasses[props.color] ?? 'badge-light'
-
-    return `${base} inline-flex items-center justify-center whitespace-nowrap`
+    return `gi-badge ${base}`
   }
 
   const base = badgeClasses[props.status] ?? 'badge-light'
-
-  return `${base} inline-flex items-center justify-center min-w-[5.5rem]`
+  return `gi-badge ${base}`
 })
 
 const statusText = computed(() => {

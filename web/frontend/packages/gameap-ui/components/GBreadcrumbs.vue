@@ -1,37 +1,54 @@
 <template>
-  <!-- Breadcrumb -->
-  <nav class="flex pt-3 pb-3 py-4 px-4 mb-4 text-stone-700 border rounded-lg bg-stone-100 dark:bg-stone-800" aria-label="Breadcrumb">
-    <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-      <li v-for="item in items.slice(0, 1)" class="inline-flex items-center">
-        <a v-if="item.link" :href="item.link" class="inline-flex items-center text-sm font-medium text-stone-700 hover:text-info dark:text-stone-400 dark:hover:text-white">
-          <BreadcrumbIcon :icon="item.icon" />
-          <span class="align-middle">{{ item.text }}</span>
-        </a>
-        <router-link v-else-if="item.route" :to="item.route" class="ms-1 text-sm font-medium text-stone-700 hover:text-info md:ms-2 dark:text-stone-400 dark:hover:text-white">
-          <BreadcrumbIcon :icon="item.icon" />
-          <span class="align-middle">{{ item.text }}</span>
-        </router-link>
-        <span v-else class="ms-1 text-sm font-medium text-stone-500 md:ms-2 dark:text-stone-400">{{ item.text }}</span>
-      </li>
+  <nav
+    v-if="items && items.length > 0"
+    class="mb-2 flex items-center text-[13px] leading-5 text-muted"
+    aria-label="Breadcrumb"
+  >
+    <ol class="inline-flex flex-wrap items-center gap-y-1">
+      <li
+        v-for="(item, index) in items"
+        :key="index"
+        class="inline-flex items-center"
+      >
+        <span
+          v-if="index > 0"
+          class="mx-2 select-none text-[12px] text-muted/60"
+          aria-hidden="true"
+        >/</span>
 
-      <li v-for="item in items.slice(1)">
-        <div class="flex items-center">
-          <GIcon name="chevron-right" class="align-middle w-3 h-3 mx-2 text-stone-400" />
-          <a v-if="item.link" :href="item.link" class="ms-1 text-sm font-medium text-stone-700 hover:text-info md:ms-2 dark:text-stone-400 dark:hover:text-white">
-            <BreadcrumbIcon :icon="item.icon" />
-            <span class="align-middle">{{ item.text }}</span>
-          </a>
-          <router-link v-else-if="item.route" :to="item.route" class="ms-1 text-sm font-medium text-stone-700 hover:text-info md:ms-2 dark:text-stone-400 dark:hover:text-white">
-            <BreadcrumbIcon :icon="item.icon" />
-            <span class="align-middle">{{ item.text }}</span>
-          </router-link>
-          <span v-else-if="item.render" class="ms-1 text-sm font-medium text-stone-500 md:ms-2 dark:text-stone-400">
-            <render :render="item.render" />
-          </span>
-          <span v-else class="ms-1 text-sm font-medium text-stone-500 md:ms-2 dark:text-stone-400">
-            {{ item.text }}
-          </span>
-        </div>
+        <a
+          v-if="item.link"
+          :href="item.link"
+          class="gi-focus-ring inline-flex items-center gap-1 rounded px-0.5 text-muted transition-colors duration-150 hover:text-body no-underline"
+        >
+          <BreadcrumbIcon v-if="item.icon" :icon="item.icon" />
+          <span>{{ item.text }}</span>
+        </a>
+
+        <router-link
+          v-else-if="item.route"
+          :to="item.route"
+          class="gi-focus-ring inline-flex items-center gap-1 rounded px-0.5 text-muted transition-colors duration-150 hover:text-body no-underline"
+        >
+          <BreadcrumbIcon v-if="item.icon" :icon="item.icon" />
+          <span>{{ item.text }}</span>
+        </router-link>
+
+        <span
+          v-else-if="item.render"
+          class="inline-flex items-center gap-1 font-medium text-secondary"
+        >
+          <RenderNode :render="item.render" />
+        </span>
+
+        <span
+          v-else
+          class="inline-flex items-center gap-1 font-medium"
+          :class="index === items.length - 1 ? 'text-secondary' : 'text-muted'"
+        >
+          <BreadcrumbIcon v-if="item.icon" :icon="item.icon" />
+          <span>{{ item.text }}</span>
+        </span>
       </li>
     </ol>
   </nav>
@@ -39,14 +56,15 @@
 
 <script setup>
 import BreadcrumbIcon from './BreadcrumbIcon.vue'
-import GIcon from './GIcon.vue'
 
-const props = defineProps({
-  items: null,
-});
+defineProps({
+  items: {
+    type: Array,
+    default: () => [],
+  },
+})
 
-const render = (attr) => {
+const RenderNode = (attr) => {
   return attr.render()
 }
-
 </script>

@@ -1,107 +1,133 @@
 <template>
-  <GBreadcrumbs :items="breadcrumbs"></GBreadcrumbs>
+  <div>
+    <GBreadcrumbs :items="breadcrumbs" />
 
-  <div class="mb-5">
-    <GButton class="mr-1" color="green" data-testid="games-add-button" v-on:click="onClickGameCreate()">
-      <GIcon name="add-square" />&nbsp;{{ trans('games.add') }}
-    </GButton>
+    <GPageHeader
+      :title="trans('games.games')"
+      :description="trans('games.page_description')"
+    >
+      <template #actions>
+        <GButton color="white" size="middle" :route="{ name: 'admin.games.import' }">
+          <GIcon name="download" class="text-[13px] text-muted" />
+          <span>{{ trans('games.import') }}</span>
+        </GButton>
 
-    <GButton class="mr-1" color="orange" v-on:click="onClickModCreate()">
-      <GIcon name="mods" />&nbsp;{{ trans('games.add_mod') }}
-    </GButton>
+        <GButton color="white" size="middle" @click="onClickGamesUpgrade">
+          <GIcon name="sync" class="text-[13px] text-muted" />
+          <span>{{ trans('games.upgrade') }}</span>
+        </GButton>
 
-    <GButton class="mr-1" color="black" v-on:click="onClickGamesUpgrade()">
-      <GIcon name="sync" />&nbsp{{ trans('games.upgrade')}}
-    </GButton>
+        <GButton color="white" size="middle" @click="onClickModCreate()">
+          <GIcon name="mods" class="text-[13px] text-muted" />
+          <span>{{ trans('games.add_mod') }}</span>
+        </GButton>
 
-    <GButton class="mr-1" color="black" :route="{name: 'admin.games.import'}">
-      <GIcon name="download" />&nbsp;{{ trans('games.import') }}
-    </GButton>
-  </div>
+        <GButton
+          color="primary"
+          size="middle"
+          data-testid="games-add-button"
+          @click="onClickGameCreate"
+        >
+          <GIcon name="plus" class="text-[13px]" />
+          <span>{{ trans('games.add') }}</span>
+        </GButton>
+      </template>
+    </GPageHeader>
 
-  <div class="w-1/4 mb-1">
-    <n-input-group>
-      <n-input-group-label>
-        <GIcon name="search" />
-      </n-input-group-label>
-      <n-input
-          v-model:value="searchGames"
+    <!-- 40px Search Toolbar -->
+    <div class="mb-4 flex items-center gap-2.5">
+      <div class="relative w-full sm:w-[320px] lg:w-[350px]">
+        <GIcon
+          name="search"
+          class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-muted"
+        />
+        <input
+          v-model="searchGames"
           type="text"
-          :placeholder="trans('main.search')"
-      />
-      <n-button @click="clearSearch" type="error" :disabled="!searchGames" ghost>
-        <GIcon name="eraser" />
-      </n-button>
-    </n-input-group>
-  </div>
+          class="gi-toolbar-search w-full pl-9 pr-8"
+          :placeholder="trans('games.search_placeholder')"
+          :aria-label="trans('games.search_placeholder')"
+        />
+        <button
+          v-if="searchGames"
+          type="button"
+          class="gi-focus-ring absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded text-muted hover:text-body"
+          :aria-label="trans('main.clear')"
+          @click="clearSearch"
+        >
+          <GIcon name="close" class="text-[12px]" />
+        </button>
+      </div>
+    </div>
 
-  <GDataTable
+    <GDataTable
       ref="tableRef"
       :columns="columns"
       :data="gamesData"
       :loading="loading"
       :pagination="pagination"
       :scroll-x="640"
-  >
-    <template #loading>
-      <Loading />
-    </template>
-    <template #empty>
-      <GEmpty :description="trans('servers.empty_list')" />
-    </template>
-  </GDataTable>
+    >
+      <template #empty>
+        <GEmpty
+          icon="gamepad"
+          :title="searchGames ? trans('servers.no_results_title') : trans('servers.empty_list')"
+        >
+          <GButton v-if="searchGames" color="white" size="middle" @click="clearSearch">
+            <GIcon name="eraser" class="text-[13px]" />
+            <span>{{ trans('main.clear') }}</span>
+          </GButton>
+        </GEmpty>
+      </template>
+    </GDataTable>
 
-  <GModal
+    <GModal
       v-model:show="gameCreateModalEnabled"
       :title="trans('games.title_add')"
       style="width: 600px"
-  >
-    <CreateGameForm
-        v-model="gameCreateModel"
-        v-on:create="onCreateGame"/>
-  </GModal>
+    >
+      <CreateGameForm v-model="gameCreateModel" @create="onCreateGame" />
+    </GModal>
 
-  <GModal
+    <GModal
       v-model:show="modCreateModalEnabled"
       :title="trans('games.title_add_mod')"
       style="width: 600px"
-  >
-    <CreateModForm
-        v-model="modCreateModel"
-        v-on:create="onCreateMod"
-    />
-  </GModal>
-
+    >
+      <CreateModForm v-model="modCreateModel" @create="onCreateMod" />
+    </GModal>
+  </div>
 </template>
 
 <script setup>
-import { GBreadcrumbs, GDeletableList, Loading, GIcon, GDataTable, GModal, GEmpty, GGameIcon } from "@gameap/ui"
-import {computed, ref, onMounted, h, watch} from "vue"
-import {trans} from "@/i18n/i18n"
-import GButton from "@/components/GButton.vue"
-import {useGameListStore} from "@/store/gameList"
-import {errorNotification, notification} from "@/parts/dialogs"
 import {
-  NButton,
-  NInput,
-  NInputGroup,
-  NInputGroupLabel,
-} from "naive-ui"
-import {useRouter} from "vue-router"
-import {storeToRefs} from "pinia"
-import CreateModForm from "./forms/CreateModForm.vue";
-import CreateGameForm from "./forms/CreateGameForm.vue";
+  GBreadcrumbs,
+  GPageHeader,
+  GDeletableList,
+  GIcon,
+  GDataTable,
+  GModal,
+  GEmpty,
+  GGameIcon,
+} from '@gameap/ui'
+import { computed, ref, onMounted, h, watch } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { trans } from '@/i18n/i18n'
+import GButton from '@/components/GButton.vue'
+import { useGameListStore } from '@/store/gameList'
+import { errorNotification, notification } from '@/parts/dialogs'
+import CreateModForm from './forms/CreateModForm.vue'
+import CreateGameForm from './forms/CreateGameForm.vue'
 
 const router = useRouter()
-
 const gamesStore = useGameListStore()
 
-const breadcrumbs = computed(() => {
-  return [
-    {'route':'/', 'text':'GameAP', 'icon': 'gameap'},
-    {'route':{name: 'admin.games.index'}, 'text':trans('games.games')},
-  ]
-})
+const breadcrumbs = computed(() => [
+  { route: '/', text: 'GameAP', icon: 'gameap' },
+  { text: trans('sidebar.admin') },
+  { text: trans('games.games') },
+])
 
 onMounted(() => {
   fetchGames()
@@ -120,77 +146,108 @@ const fetchAllGameMods = () => {
   })
 }
 
-const createColumns = () => {
-  return [
-    {
-      title: trans('games.name'),
-      key: 'name',
-      render(row) {
-        return h("div", {class: 'flex items-center'}, [
-          h(GGameIcon, {game: row.code, class: "mr-2"}),
-          h("div", {}, [
-            h("span", {}, row.name),
-            h("small", {class: 'block text-stone-500'}, row.code)
-          ])
-        ])
-      },
-    },
-    {
-      title: trans('games.mods'),
-      key: 'mods',
-      render(row) {
-        if (row.mods.length === 0) {
-          return h(GButton, {
-            color: 'orange',
-            size: 'small',
-            class: 'px-2 py-1',
-            onClick: () => {onClickModCreate(row.code)},
-          }, { default: () => [
-            h(GIcon, {name: 'mods', class: 'mr-0.5'}),
-            h("span", {class: ''}, trans('games.add_first_mod'))
-          ]})
-        }
-
-        return h(
-            GDeletableList,
+const columns = computed(() => [
+  {
+    title: trans('games.name'),
+    key: 'name',
+    width: '38%',
+    render(row) {
+      return h('div', { class: 'flex items-center gap-3 min-w-0' }, [
+        h(
+          'div',
+          {
+            class:
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-border bg-surface-raised text-secondary',
+          },
+          [h(GGameIcon, { game: row.code })],
+        ),
+        h('div', { class: 'min-w-0 flex-1' }, [
+          h(
+            RouterLink,
             {
-              class: ["md:max-w-48"],
-              items: row.mods,
-              deleteCallback: onClickModDelete,
-              clickCallback: onClickMod,
-            }
-        )
-      },
+              to: { name: 'admin.games.edit', params: { code: row.code } },
+              class:
+                'gi-focus-ring font-semibold text-[14.5px] leading-5 text-body hover:text-accent transition-colors no-underline truncate block',
+            },
+            { default: () => row.name },
+          ),
+          h('div', { class: 'gi-mono mt-0.5 text-[12px] text-muted' }, row.code),
+        ]),
+      ])
     },
-    {
-      title: trans('main.actions'),
-      render(row) {
-        return [
-          h(GButton, {
-            color: 'blue',
+  },
+  {
+    title: trans('games.mods'),
+    key: 'mods',
+    width: '40%',
+    render(row) {
+      if (row.mods.length === 0) {
+        return h(
+          GButton,
+          {
+            color: 'white',
             size: 'small',
-            class: 'mr-0.5',
-            route: {name: 'admin.games.edit', params: {code: row.code}},
-          }, { default: () => [
-            h(GIcon, {name: 'edit'}),
-            h("span", {class: 'hidden lg:inline'}, trans('main.edit')),
-          ]}),
-          h(GButton, {
+            onClick: () => onClickModCreate(row.code),
+          },
+          {
+            default: () => [
+              h(GIcon, { name: 'plus', class: 'text-[11px] text-muted' }),
+              h('span', {}, trans('games.add_first_mod')),
+            ],
+          },
+        )
+      }
+
+      return h(GDeletableList, {
+        class: ['md:max-w-64'],
+        items: row.mods,
+        deleteCallback: onClickModDelete,
+        clickCallback: onClickMod,
+      })
+    },
+  },
+  {
+    title: trans('main.actions'),
+    key: 'actions',
+    width: '22%',
+    render(row) {
+      return h('div', { class: 'flex flex-wrap items-center gap-1.5' }, [
+        h(
+          GButton,
+          {
+            color: 'white',
+            size: 'small',
+            route: { name: 'admin.games.edit', params: { code: row.code } },
+          },
+          {
+            default: () => [
+              h(GIcon, { name: 'edit', class: 'text-[12px]' }),
+              h('span', { class: 'hidden lg:inline' }, trans('main.edit')),
+            ],
+          },
+        ),
+        h(
+          GButton,
+          {
             color: 'red',
             size: 'small',
-            text: trans('main.delete'),
-            onClick: () => {onClickGameDelete(row.code)},
-          }, { default: () => [
-            h(GIcon, {name: 'delete'}),
-            h("span", {class: 'hidden lg:inline'}, trans('main.delete')),
-          ]}),
-        ]
-      },
-    }
-  ]
-}
+            title: trans('main.delete'),
+            onClick: () => onClickGameDelete(row.code),
+          },
+          {
+            default: () => [
+              h(GIcon, { name: 'delete', class: 'text-[12px]' }),
+              h('span', { class: 'hidden lg:inline' }, trans('main.delete')),
+            ],
+          },
+        ),
+      ])
+    },
+  },
+])
 
-const {loading, games, allGameMods} = storeToRefs(gamesStore)
+const { loading, games, allGameMods } = storeToRefs(gamesStore)
+const tableRef = ref(null)
 
 const modCreateModalEnabled = ref(false)
 const modCreateModel = ref({
@@ -210,10 +267,9 @@ const gameCreateModel = ref({
   remoteRepositoryWindows: '',
 })
 
-const columns = ref(createColumns())
 const pagination = {
   pageSize: 50,
-};
+}
 
 const SEARCH_STORAGE_KEY = 'gameap_games_search'
 const searchGames = ref(sessionStorage.getItem(SEARCH_STORAGE_KEY) || '')
@@ -231,16 +287,11 @@ const clearSearch = () => {
 }
 
 const gamesData = computed(() => {
-  let result = []
+  const result = []
+  const q = (searchGames.value || '').toLowerCase()
 
   games.value.forEach((game) => {
-    if (
-        searchGames.value &&
-        (
-            !game.name.toLowerCase().includes(searchGames.value.toLowerCase()) &&
-            !game.code.toLowerCase().includes(searchGames.value.toLowerCase())
-        )
-    ) {
+    if (q && !game.name.toLowerCase().includes(q) && !game.code.toLowerCase().includes(q)) {
       return
     }
 
@@ -256,7 +307,7 @@ const gamesData = computed(() => {
 })
 
 const getGameMods = (gameCode) => {
-  let mods = []
+  const mods = []
   allGameMods.value.forEach((gameMod) => {
     if (gameMod.game_code === gameCode) {
       mods.push({
@@ -271,38 +322,35 @@ const getGameMods = (gameCode) => {
 }
 
 const onClickGameDelete = (code) => {
-  window.$dialog.success({
+  window.$dialog.warning({
     title: trans('games.delete_game_confirm_msg'),
     positiveText: trans('main.yes'),
-    negativeText: trans('main.no' ),
-    closable: false,
+    negativeText: trans('main.no'),
+    closable: true,
     onPositiveClick: () => {
       deleteGameByCode(code)
     },
-    onNegativeClick: () => {}
   })
 }
 
 const deleteGameByCode = (code) => {
-  gamesStore.deleteGameByCode(code).then(() => {
-    fetchGames()
-  }).catch((error) => {
-    errorNotification(error)
-  })
+  gamesStore
+    .deleteGameByCode(code)
+    .then(() => {
+      fetchGames()
+    })
+    .catch((error) => {
+      errorNotification(error)
+    })
 }
 
 const onClickModCreate = (game) => {
   modCreateModel.value = {
-    game: null,
+    game: game || null,
     name: '',
     remoteRepositoryLinux: '',
     remoteRepositoryWindows: '',
   }
-
-  if (game) {
-    modCreateModel.value.game = game
-  }
-
   modCreateModalEnabled.value = true
 }
 
@@ -314,18 +362,25 @@ const onCreateMod = () => {
     remote_repository_windows: modCreateModel.value.remoteRepositoryWindows,
   }
 
-  gamesStore.createGameMod(fields).then(({id}) => {
-    notification({
-      content: trans('games.mod_create_success_msg'),
-      type: "success",
-    }, () => {
-      fetchAllGameMods()
+  gamesStore
+    .createGameMod(fields)
+    .then(() => {
+      notification(
+        {
+          content: trans('games.mod_create_success_msg'),
+          type: 'success',
+        },
+        () => {
+          fetchAllGameMods()
+        },
+      )
     })
-  }).catch((error) => {
-    errorNotification(error)
-  }).finally(() => {
-    modCreateModalEnabled.value = false
-  })
+    .catch((error) => {
+      errorNotification(error)
+    })
+    .finally(() => {
+      modCreateModalEnabled.value = false
+    })
 }
 
 const onClickGameCreate = () => {
@@ -335,7 +390,6 @@ const onClickGameCreate = () => {
     remoteRepositoryLinux: '',
     remoteRepositoryWindows: '',
   }
-
   gameCreateModalEnabled.value = true
 }
 
@@ -343,75 +397,75 @@ const onCreateGame = () => {
   const fields = {
     name: gameCreateModel.value.name,
     code: gameCreateModel.value.code,
-    engine: gameCreateModel.value.engine,
+    engine: gameCreateModel.value.engine || 'unknown',
     engine_version: gameCreateModel.value.engineVersion,
     remote_repository_linux: gameCreateModel.value.remoteRepositoryLinux,
     remote_repository_windows: gameCreateModel.value.remoteRepositoryWindows,
   }
 
-  if (!fields.engine) {
-    fields.engine = "unknown"
-  }
-
-  gamesStore.createGame(fields).then((game) => {
-    notification({
-      content: trans('games.create_success_msg'),
-      type: "success",
+  gamesStore
+    .createGame(fields)
+    .then(() => {
+      notification({
+        content: trans('games.create_success_msg'),
+        type: 'success',
+      })
+      gameCreateModalEnabled.value = false
+      router.push({ name: 'admin.games.edit', params: { code: fields.code } })
     })
-    gameCreateModalEnabled.value = false
-    router.push({name: 'admin.games.edit', params: {code: fields.code}})
-  }).catch((error) => {
-    errorNotification(error)
-  })
+    .catch((error) => {
+      errorNotification(error)
+    })
 }
 
 const onClickMod = (code, id) => {
-  router.push({name: 'admin.games.mods.edit', params: {code: code, id: id}})
+  router.push({ name: 'admin.games.mods.edit', params: { code, id } })
 }
 
 const onClickModDelete = (id) => {
-  window.$dialog.success({
+  window.$dialog.warning({
     title: trans('games.delete_mod_confirm_msg'),
     positiveText: trans('main.yes'),
-    negativeText: trans('main.no' ),
-    closable: false,
+    negativeText: trans('main.no'),
+    closable: true,
     onPositiveClick: () => {
       deleteModById(id)
     },
-    onNegativeClick: () => {}
   })
 }
 
 const deleteModById = (id) => {
-  gamesStore.deleteModById(id).then(() => {
-    fetchAllGameMods()
-  }).catch((error) => {
-    errorNotification(error)
-  })
+  gamesStore
+    .deleteModById(id)
+    .then(() => {
+      fetchAllGameMods()
+    })
+    .catch((error) => {
+      errorNotification(error)
+    })
 }
 
 const onClickGamesUpgrade = () => {
-  window.$dialog.success({
+  window.$dialog.info({
     title: trans('games.d_upgrade_confirm'),
     positiveText: trans('main.yes'),
-    negativeText: trans('main.no' ),
-    closable: false,
+    negativeText: trans('main.no'),
+    closable: true,
     onPositiveClick: () => {
-      gamesStore.upgradeGames().then(() => {
-        notification({
-          content: trans('games.upgrade_success_msg'),
-          type: "success",
+      gamesStore
+        .upgradeGames()
+        .then(() => {
+          notification({
+            content: trans('games.upgrade_success_msg'),
+            type: 'success',
+          })
+          fetchGames()
+          fetchAllGameMods()
         })
-
-        fetchGames()
-        fetchAllGameMods()
-
-      }).catch((error) => {
-        errorNotification(error)
-      })
+        .catch((error) => {
+          errorNotification(error)
+        })
     },
-    onNegativeClick: () => {}
   })
 }
-
 </script>

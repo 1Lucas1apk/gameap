@@ -1,34 +1,34 @@
 <template>
-  <div class="w-full p-3 border border-stone-200 bg-stone-50 rounded-lg sm:p-4 dark:bg-stone-800 dark:border-stone-700">
-    <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-y-0 sm:divide-x divide-stone-200 dark:divide-stone-700">
+  <div class="w-full rounded-card border border-border bg-surface p-5">
+    <div class="grid grid-cols-1 gap-y-5 sm:grid-cols-2 sm:gap-y-0 sm:divide-x divide-border">
       <section class="sm:pr-6 flex flex-col">
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-base font-semibold text-stone-900 dark:text-white">
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[15px] font-semibold text-body">
           <span>GameAP</span>
-          <GStatusBadge v-if="!versionLoading" :color="panelBadgeColor" :text="panelCurrent" />
+          <GStatusBadge v-if="!versionLoading" :color="panelBadgeColor" :text="panelCurrent" class="gi-mono" />
         </div>
 
-        <GIcon v-if="versionLoading" name="loading" class="mt-3 self-start text-stone-400" />
-        <div v-else class="mt-2 space-y-1 text-sm text-stone-900 dark:text-white">
+        <GIcon v-if="versionLoading" name="loading" class="mt-3 self-start text-muted" />
+        <div v-else class="mt-2 space-y-1 text-[13px] text-secondary">
           <div v-if="panelLatestStable">
             {{ trans('home.latest_stable') }}:
-            <a class="hover:underline" :href="panel.latest_stable_url" target="_blank">{{ panelLatestStable }}</a>
+            <a class="gi-mono text-accent hover:underline" :href="panel.latest_stable_url" target="_blank" rel="noopener noreferrer">{{ panelLatestStable }}</a>
           </div>
           <div v-if="panelLatestBeta">
             {{ trans('home.latest_beta') }}:
-            <a class="hover:underline" :href="panel.latest_beta_url" target="_blank">{{ panelLatestBeta }}</a>
+            <a class="gi-mono text-accent hover:underline" :href="panel.latest_beta_url" target="_blank" rel="noopener noreferrer">{{ panelLatestBeta }}</a>
           </div>
         </div>
       </section>
 
       <section class="sm:pl-6 flex flex-col">
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-base font-semibold text-stone-900 dark:text-white">
+        <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[15px] font-semibold text-body">
           <span>GameAP Daemon</span>
           <template v-if="!daemonLoading && daemonStatus">
             <button
-                v-if="daemonStatusClickable"
-                type="button"
-                class="cursor-pointer hover:opacity-80"
-                @click="nodesModalShown = true"
+              v-if="daemonStatusClickable"
+              type="button"
+              class="gi-focus-ring cursor-pointer rounded-full hover:opacity-85"
+              @click="nodesModalShown = true"
             >
               <GStatusBadge :color="daemonStatusColor" :text="daemonStatusText" />
             </button>
@@ -36,21 +36,21 @@
           </template>
         </div>
 
-        <GIcon v-if="daemonLoading" name="loading" class="mt-3 self-start text-stone-400" />
-        <div v-else class="mt-2 space-y-1 text-sm text-stone-900 dark:text-white">
+        <GIcon v-if="daemonLoading" name="loading" class="mt-3 self-start text-muted" />
+        <div v-else class="mt-2 space-y-1 text-[13px] text-secondary">
           <div v-if="daemonLatestStable">
             {{ trans('home.latest_stable') }}:
-            <a class="hover:underline" :href="daemon.latest_stable_url" target="_blank">{{ daemonLatestStable }}</a>
+            <a class="gi-mono text-accent hover:underline" :href="daemon.latest_stable_url" target="_blank" rel="noopener noreferrer">{{ daemonLatestStable }}</a>
           </div>
           <div v-if="daemonLatestBeta">
             {{ trans('home.latest_beta') }}:
-            <a class="hover:underline" :href="daemon.latest_beta_url" target="_blank">{{ daemonLatestBeta }}</a>
+            <a class="gi-mono text-accent hover:underline" :href="daemon.latest_beta_url" target="_blank" rel="noopener noreferrer">{{ daemonLatestBeta }}</a>
           </div>
         </div>
       </section>
     </div>
 
-    <div v-if="fetched && !updateCheckEnabled" class="mt-3 text-sm text-stone-500 dark:text-stone-400">
+    <div v-if="fetched && !updateCheckEnabled" class="mt-3 border-t border-border/60 pt-3 text-[13px] text-muted">
       {{ trans('home.update_check_disabled') }}
     </div>
 
@@ -59,14 +59,14 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue"
-import {GIcon, GStatusBadge} from "@gameap/ui"
-import DaemonVersionsModal from "@/components/blocks/DaemonVersionsModal.vue"
-import {useNodeListStore} from "@/store/nodeList"
-import {useVersionStore} from "@/store/version"
-import {displayVersion} from "@/utils/version"
-import {trans} from "@/i18n/i18n"
-import {errorNotification} from "@/parts/dialogs"
+import { computed, onMounted, ref } from 'vue'
+import { GIcon, GStatusBadge } from '@gameap/ui'
+import DaemonVersionsModal from '@/components/blocks/DaemonVersionsModal.vue'
+import { useNodeListStore } from '@/store/nodeList'
+import { useVersionStore } from '@/store/version'
+import { displayVersion } from '@/utils/version'
+import { trans } from '@/i18n/i18n'
+import { errorNotification } from '@/parts/dialogs'
 
 const versionStore = useVersionStore()
 const nodeListStore = useNodeListStore()
@@ -76,8 +76,6 @@ const nodesModalShown = ref(false)
 const versionLoading = computed(() => versionStore.loading)
 const summaryLoading = computed(() => nodeListStore.loading)
 const daemonLoading = computed(() => versionLoading.value || summaryLoading.value)
-// A failed or still-running request must not read as "update check is
-// disabled" — the note is shown only for a successfully loaded response.
 const fetched = computed(() => versionStore.fetched)
 const panel = computed(() => versionStore.panel)
 const daemon = computed(() => versionStore.daemon)
@@ -89,8 +87,6 @@ const panelLatestBeta = computed(() => displayVersion(panel.value.latest_beta))
 const daemonLatestStable = computed(() => displayVersion(daemon.value.latest_stable))
 const daemonLatestBeta = computed(() => displayVersion(daemon.value.latest_beta))
 
-// A dev build is neither actual nor outdated, so the green badge is shown only
-// for a release build the update check managed to compare.
 const panelBadgeColor = computed(() => {
   if (panel.value.update_available) {
     return 'orange'
@@ -98,7 +94,6 @@ const panelBadgeColor = computed(() => {
   if (panel.value.is_release === true && panel.value.latest_stable) {
     return 'green'
   }
-
   return 'stone'
 })
 
@@ -112,8 +107,6 @@ const nodesTotal = computed(() => summary.value.total || 0)
 const outdatedCount = computed(() => allNodes.value.filter((node) => node.outdated).length)
 const knownVersionCount = computed(() => allNodes.value.filter((node) => node.version).length)
 
-// Offline daemons have unknown versions, so "all up to date" is claimed only
-// when every daemon version was actually compared against a known release.
 const daemonStatus = computed(() => {
   if (!updateCheckEnabled.value) {
     return ''
@@ -130,24 +123,23 @@ const daemonStatus = computed(() => {
   if (daemon.value.latest_stable && knownVersionCount.value === nodesTotal.value) {
     return 'actual'
   }
-
   return 'unavailable'
 })
 
 const daemonStatusClickable = computed(() => ['outdated', 'actual'].includes(daemonStatus.value))
 
 const daemonStatusColor = computed(() => {
-  return {outdated: 'orange', actual: 'green', unavailable: 'red'}[daemonStatus.value]
+  return { outdated: 'orange', actual: 'green', unavailable: 'red' }[daemonStatus.value]
 })
 
 const daemonStatusText = computed(() => {
   switch (daemonStatus.value) {
-  case 'outdated':
-    return trans('home.daemons_outdated', {count: outdatedCount.value, total: nodesTotal.value})
-  case 'actual':
-    return trans('home.daemons_actual')
-  default:
-    return trans('home.version_info_unavailable')
+    case 'outdated':
+      return trans('home.daemons_outdated', { count: outdatedCount.value, total: nodesTotal.value })
+    case 'actual':
+      return trans('home.daemons_actual')
+    default:
+      return trans('home.version_info_unavailable')
   }
 })
 

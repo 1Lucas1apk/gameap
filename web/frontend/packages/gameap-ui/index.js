@@ -1,4 +1,5 @@
 export { default as GBreadcrumbs } from './components/GBreadcrumbs.vue'
+export { default as GPageHeader } from './components/GPageHeader.vue'
 export { default as GDeletableList } from './components/GDeletableList.vue'
 export { default as GStatusBadge } from './components/GStatusBadge.vue'
 export { default as Loading } from './components/Loading.vue'
@@ -23,6 +24,7 @@ export { defaultIconMap } from './icons/iconMap.js'
 export { defineSvgIcon, isSvgIcon } from './icons/svgData.js'
 
 import GBreadcrumbs from './components/GBreadcrumbs.vue'
+import GPageHeader from './components/GPageHeader.vue'
 import GDeletableList from './components/GDeletableList.vue'
 import GStatusBadge from './components/GStatusBadge.vue'
 import Loading from './components/Loading.vue'
@@ -44,6 +46,7 @@ import GGameIcon from './components/GGameIcon.vue'
 
 export function install(app) {
   app.component('GBreadcrumbs', GBreadcrumbs)
+  app.component('GPageHeader', GPageHeader)
   app.component('GDeletableList', GDeletableList)
   app.component('GStatusBadge', GStatusBadge)
   app.component('Loading', Loading)

@@ -6,6 +6,7 @@ const pluralForms = {
     en: (n) => (n !== 1 ? 1 : 0),
     es: (n) => (n !== 1 ? 1 : 0),
     de: (n) => (n !== 1 ? 1 : 0),
+    pt: (n) => (n !== 1 ? 1 : 0),
     ru: (n) =>
         n % 10 === 1 && n % 100 !== 11
             ? 0
@@ -35,7 +36,11 @@ const pluralize = (choice, choicesLength) => {
 const trans = (string, args) => {
     let value = get(window.i18n, string);
 
-    if (!value) {
+    if (value === undefined || value === null) {
+        value = get(window.i18nFallback, string);
+    }
+
+    if (value === undefined || value === null) {
         return string;
     }
 

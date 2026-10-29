@@ -9,7 +9,7 @@
         aria-modal="true"
     >
       <template #header-extra>
-        <button type="button" class="btn-close" aria-label="Close" v-on:click="showModal = false">
+        <button type="button" class="btn-close" :aria-label="trans('main.close')" v-on:click="showModal = false">
           <GIcon name="close" />
         </button>
       </template>
@@ -89,10 +89,10 @@
 
               <n-form-item label="GitHub">
                 <n-switch v-model:value="useGithubSource" />
-                <span class="ml-2 text-sm text-muted">Install from GitHub source</span>
+                <span class="ml-2 text-sm text-muted">{{ trans('dedicated_servers.install_github') }}</span>
               </n-form-item>
 
-              <n-form-item v-if="useGithubSource" label="Branch">
+              <n-form-item v-if="useGithubSource" :label="trans('dedicated_servers.branch')">
                 <n-input v-model:value="branchName" placeholder="develop" />
               </n-form-item>
             </n-collapse-item>

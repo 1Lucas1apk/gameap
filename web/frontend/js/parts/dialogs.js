@@ -38,7 +38,7 @@ const errorNotification = function(error, callback) {
             ({title, content} = parseErrorObject(error))
             break
         default:
-            content = "Something went wrong."
+            content = trans('main.something_went_wrong')
     }
 
     notification({
@@ -51,7 +51,7 @@ const errorNotification = function(error, callback) {
 const parseErrorObject = function(error) {
     const result = {
         title: trans('main.error'),
-        content: "Something went wrong.",
+        content: trans('main.something_went_wrong'),
     }
 
     if ('message' in error) {

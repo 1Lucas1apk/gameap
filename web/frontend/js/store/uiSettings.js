@@ -28,12 +28,14 @@ export const useUISettingsStore = defineStore('uiSettings', {
     state: () => ({
         language: savedSettings.language || null,
         leftMenuMinimized: savedSettings.leftMenuMinimized || false,
-        theme: savedSettings.theme || 'light',
+        theme: savedSettings.theme || 'dark',
+        mobileMenuOpen: false,
     }),
     getters: {
         currentLanguage: (state) => state.language,
         isMenuMinimized: (state) => state.leftMenuMinimized,
         currentTheme: (state) => state.theme,
+        isMobileMenuOpen: (state) => state.mobileMenuOpen,
     },
     actions: {
         setLanguage(lang) {
@@ -47,6 +49,15 @@ export const useUISettingsStore = defineStore('uiSettings', {
         toggleMenuMinimized() {
             this.leftMenuMinimized = !this.leftMenuMinimized
             this._saveToStorage()
+        },
+        setMobileMenuOpen(open) {
+            this.mobileMenuOpen = Boolean(open)
+        },
+        toggleMobileMenu() {
+            this.mobileMenuOpen = !this.mobileMenuOpen
+        },
+        closeMobileMenu() {
+            this.mobileMenuOpen = false
         },
         setTheme(theme) {
             this.theme = theme

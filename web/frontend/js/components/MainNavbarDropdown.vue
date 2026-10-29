@@ -1,62 +1,85 @@
 <template>
   <GMenu as="div" :class="$attrs.class" class="relative inline-flex items-center text-left">
-    <div class="sm:hidden">
-      <GMenuButton @click="onMenuButtonClick" class="flex items-center gap-x-1.5 text-white hover:bg-chrome-item px-4 py-2 rounded">
-        <GIcon v-if="buttonIcon" :name="buttonIcon" />
-      </GMenuButton>
-    </div>
+    <GMenuButton
+      @click="onMenuButtonClick"
+      class="gi-focus-ring inline-flex h-9 items-center gap-2 rounded-btn px-3 text-[13.5px] font-medium text-secondary transition-colors duration-150 hover:bg-surface-hover hover:text-body"
+    >
+      <GIcon v-if="buttonIcon" :name="buttonIcon" class="text-[15px] text-muted" />
+      <span v-if="props.buttonText" class="hidden sm:inline">{{ props.buttonText }}</span>
+      <GIcon
+        :name="menuOpened ? 'chevron-up' : 'chevron-down'"
+        class="hidden sm:inline text-[11px] text-muted"
+      />
+    </GMenuButton>
 
-    <div class="hidden sm:block">
-      <GMenuButton @click="onMenuButtonClick" class="flex items-center w-full gap-x-1.5 text-white hover:bg-chrome-item md:px-4 md:py-2 rounded">
-        <GIcon v-if="buttonIcon" :name="buttonIcon" class="mr-1" />
-        <span class="md:visible collapse">{{ props.buttonText }}</span>
-        <GIcon v-if="!menuOpened" name="chevron-down" class="ml-4 md:visible collapse" />
-        <GIcon v-else name="chevron-up" class="ml-4 md:visible collapse" />
-      </GMenuButton>
-    </div>
+    <transition
+      @after-leave="transitionAfterLeave"
+      enter-active-class="transition ease-out duration-120"
+      enter-from-class="transform opacity-0 scale-95"
+      enter-to-class="transform opacity-100 scale-100"
+      leave-active-class="transition ease-in duration-100"
+      leave-from-class="transform opacity-100 scale-100"
+      leave-to-class="transform opacity-0 scale-95"
+    >
+      <GMenuItems
+        :unmount="menuItemsUnmount"
+        class="absolute right-0 top-full z-50 mt-1.5 w-56 origin-top-right divide-y divide-border rounded-[8px] border border-border bg-surface-raised py-1 shadow-xl focus:outline-none"
+      >
+        <div
+          v-for="(itemGroup, groupIdx) in items"
+          :key="groupIdx"
+          class="py-1 px-1"
+        >
+          <GMenuItem
+            v-for="(item, itemIdx) in itemGroup"
+            :key="itemIdx"
+            v-slot="{ active, close }"
+          >
+            <a
+              v-if="item.route"
+              @click="onLinkClick(item, close)"
+              :class="[
+                active ? 'bg-surface-hover text-body' : 'text-secondary',
+                'flex items-center gap-2.5 rounded-[6px] px-3 py-2 text-[13.5px] leading-5 cursor-pointer no-underline transition-colors duration-100',
+              ]"
+            >
+              <GIcon v-if="item.icon" :name="item.icon" class="w-4 text-center text-[14px] text-muted shrink-0" />
+              <span class="truncate">{{ item.label }}</span>
+            </a>
 
-    <transition @after-leave="transitionAfterLeave" enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-      <GMenuItems :unmount="menuItemsUnmount" class="absolute right-0 top-full z-10 mt-2 w-56 origin-top-right divide-y divide-stone-100 rounded bg-white dark:bg-stone-900 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-        <div class="py-1" v-for="itemGroup in items">
-          <GMenuItem v-slot="{ active, close }" v-for="item in itemGroup">
             <a
-                v-if="item.route"
-                @click="onLinkClick(item, close)"
-                :class="[active
-                  ? 'bg-stone-100 text-stone-900 dark:bg-stone-950 dark:text-stone-300'
-                  : 'text-stone-700 dark:text-stone-200',
-                  'block px-4 py-2 text-sm cursor-pointer'
-                ]"
+              v-else-if="item.link"
+              :href="item.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="onLinkClick(item, close)"
+              :class="[
+                active ? 'bg-surface-hover text-body' : 'text-secondary',
+                'flex items-center justify-between gap-2.5 rounded-[6px] px-3 py-2 text-[13.5px] leading-5 no-underline transition-colors duration-100',
+              ]"
             >
-                <GIcon v-if="item.icon" :name="item.icon" />
-                {{ item.label }}
+              <span class="flex items-center gap-2.5 min-w-0">
+                <GIcon v-if="item.icon" :name="item.icon" class="w-4 text-center text-[14px] text-muted shrink-0" />
+                <span class="truncate">{{ item.label }}</span>
+              </span>
+              <GIcon name="external-link" class="text-[11px] text-muted/70 shrink-0" />
             </a>
+
             <a
-                v-else-if="item.link"
-                :href="item.link"
-                target="_blank"
-                @click="onLinkClick(item, close)"
-                :class="[active
-                  ? 'bg-stone-100 text-stone-900 dark:bg-stone-950 dark:text-stone-300'
-                  : 'text-stone-700 dark:text-stone-200',
-                  'block px-4 py-2 text-sm'
-                ]"
+              v-else-if="item.onClick"
+              href="#"
+              @click.prevent="onActionClick(item, close)"
+              :class="[
+                active ? 'bg-surface-hover text-body' : 'text-secondary',
+                item.active ? 'font-semibold text-accent' : '',
+                'flex items-center justify-between gap-2.5 rounded-[6px] px-3 py-2 text-[13.5px] leading-5 cursor-pointer no-underline transition-colors duration-100',
+              ]"
             >
-              <GIcon v-if="item.icon" :name="item.icon" />
-              {{ item.label }}
-            </a>
-            <a
-                v-else-if="item.onClick"
-                :href="item.link"
-                @click="item.onClick"
-                :class="[active
-                  ? 'bg-stone-100 text-stone-900 dark:bg-stone-950 dark:text-stone-300'
-                  : 'text-stone-700 dark:text-stone-200',
-                  'block px-4 py-2 text-sm cursor-pointer'
-                ]"
-            >
-              <GIcon v-if="item.icon" :name="item.icon" />
-              {{ item.label }}
+              <span class="flex items-center gap-2.5 min-w-0">
+                <GIcon v-if="item.icon" :name="item.icon" class="w-4 text-center text-[14px] text-muted shrink-0" />
+                <span class="truncate">{{ item.label }}</span>
+              </span>
+              <GIcon v-if="item.active" name="check" class="text-[12px] text-accent shrink-0" />
             </a>
           </GMenuItem>
         </div>
@@ -66,24 +89,24 @@
 </template>
 
 <script setup>
-import { GMenu, GMenuButton, GMenuItem, GMenuItems, GIcon } from "@gameap/ui"
-import {defineProps, ref} from "vue"
-import {useRouter} from "vue-router"
+import { GMenu, GMenuButton, GMenuItem, GMenuItems, GIcon } from '@gameap/ui'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const props = defineProps({
   buttonText: {
     type: String,
-    required: true,
+    default: '',
   },
   buttonIcon: {
     type: String,
-    required: false,
+    default: '',
   },
   items: {
     type: Array,
-    required: false,
+    default: () => [],
   },
 })
 
@@ -91,7 +114,7 @@ const menuItemsUnmount = ref(true)
 const menuOpened = ref(false)
 
 const onMenuButtonClick = () => {
-  menuOpened.value = !menuOpened.value;
+  menuOpened.value = !menuOpened.value
 }
 
 const onLinkClick = (item, close) => {
@@ -101,11 +124,18 @@ const onLinkClick = (item, close) => {
   if (item.route) {
     router.push(item.route)
   }
-};
+}
+
+const onActionClick = (item, close) => {
+  menuOpened.value = false
+  close()
+
+  if (item.onClick) {
+    item.onClick()
+  }
+}
 
 const transitionAfterLeave = () => {
   menuOpened.value = false
 }
-
-
 </script>

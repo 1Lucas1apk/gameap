@@ -1,10 +1,29 @@
+html,
 body {
+  font-family: var(--gameap-font-sans);
   font-size: 14px;
+  line-height: 21px;
+  background-color: var(--gameap-app-bg);
+  color: var(--gameap-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code,
+kbd,
+pre,
+samp,
+.gi-mono {
+  font-family: var(--gameap-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.gi-tabular {
+  font-variant-numeric: tabular-nums;
 }
 
 .row-eq {
   display: flex;
-  display: -webkit-flex;
   flex-wrap: wrap;
 }
 
@@ -19,15 +38,23 @@ body {
 }
 
 .logo {
-  max-width: 300px;
-  max-height: 35px;
-  margin-left: 30px;
+  max-width: 164px;
+  max-height: 28px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 .logo-mini {
-  max-width: 35px;
-  max-height: 35px;
-  margin-right: 10px;
+  max-width: 28px;
+  max-height: 28px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+html.light .gi-brand-logo {
+  filter: brightness(0.16);
 }
 
 // The terminal is intentionally theme-invariant (dark in both modes)
@@ -37,5 +64,17 @@ input.terminal-input {
   background: transparent !important;
   outline: none;
   display: inline;
+  font-family: var(--gameap-font-mono);
   @apply text-white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

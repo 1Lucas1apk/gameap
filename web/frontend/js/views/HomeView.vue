@@ -1,253 +1,314 @@
 <template>
-    <div class="mt-4">
-      <GButton class="px-8 py-8 bg-stone-50 hover:bg-stone-100
-        border dark:border-stone-700 dark:bg-stone-800
-        dark:hover:bg-stone-900 m-2 h-28 sm:min-w-48 max-sm:w-full" :route="{name: 'servers'}">
-        <div class="text-lg">
-          <GIcon name="server" />
-          {{ trans('servers.servers') }}
-        </div>
-        <div class="mt-3 grid grid-cols-2 content-center">
-          <div class="text-xs text-lime-600">
-            <div class="inline" v-if="!loading">
-              <GIcon name="heart-pulse" />:
-            </div>
-            <GIcon v-if="loading" name="loading" class="animate-spin" />
-            <span v-else>{{ serverListStore.summary.online }}</span>
-          </div>
-          <div class="text-xs text-red-600">
-            <div class="inline" v-if="!loading">
-              <GIcon name="skull" />:
-            </div>
-            <GIcon v-if="loading" name="loading" class="animate-spin" />
-            <span v-else>{{ serverListStore.summary.offline }}</span>
-          </div>
-        </div>
-      </GButton>
+  <div>
+    <GBreadcrumbs :items="breadcrumbs" />
 
-      <GButton v-if="isAdmin" class="px-8 py-8 bg-stone-50 hover:bg-stone-100
-        border dark:border-stone-700
-        dark:bg-stone-800 dark:hover:bg-stone-900 m-2 h-28 sm:min-w-48 max-sm:w-full" :route="{name: 'admin.nodes.index'}">
-        <div class="text-lg">
-          <GIcon name="hard-drive" />
-          {{ trans('dedicated_servers.nodes' )}}
-        </div>
-        <div class="mt-3 grid grid-cols-2 content-center">
-          <div class="text-xs text-lime-600">
-            <div class="inline" v-if="!loading">
-              <GIcon name="heart-pulse" />:
-            </div>
-            <GIcon v-if="loading" name="loading" class="animate-spin" />
-            <span v-else>{{ nodeListStore.summary.online }}</span>
-          </div>
-          <div class="text-xs text-red-600">
-            <div class="inline" v-if="!loading">
-              <GIcon name="power-off" />:
-            </div>
-            <GIcon v-if="loading" name="loading" class="animate-spin" />
-            <span v-else>{{ nodeListStore.summary.offline }}</span>
-          </div>
-        </div>
-      </GButton>
+    <GPageHeader
+      :title="trans('home.main')"
+      :description="trans('home.page_description')"
+    >
+      <template #actions>
+        <GButton
+          v-if="isAdmin"
+          color="primary"
+          size="middle"
+          :route="{ name: 'admin.servers.create' }"
+        >
+          <GIcon name="plus" class="text-[13px]" />
+          <span>{{ trans('servers.create') }}</span>
+        </GButton>
+      </template>
+    </GPageHeader>
 
+    <!-- Operational Summary Cards -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Game Servers Summary Card -->
+      <router-link
+        :to="{ name: 'servers' }"
+        class="gi-focus-ring group flex flex-col justify-between rounded-card border border-border bg-surface p-5 no-underline transition-colors duration-150 hover:border-border-strong hover:bg-surface-raised"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="flex h-9 w-9 items-center justify-center rounded-[8px] border border-border bg-surface-raised text-accent">
+              <GIcon name="server" class="text-[15px]" />
+            </span>
+            <span class="text-[15px] font-semibold text-body group-hover:text-accent transition-colors">
+              {{ trans('servers.game_servers') }}
+            </span>
+          </div>
+          <GIcon name="chevron-right" class="text-[12px] text-muted group-hover:text-body transition-colors" />
+        </div>
+
+        <div class="mt-5 flex items-baseline justify-between border-t border-border/60 pt-3.5">
+          <div>
+            <div class="text-[12px] text-muted">Total</div>
+            <div class="gi-mono mt-0.5 text-[24px] font-semibold leading-7 text-body">
+              <GIcon v-if="loading" name="loading" class="text-[16px] text-muted" />
+              <span v-else>{{ serverTotal }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-[13px]">
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-success" aria-hidden="true" />
+              <span class="text-muted">{{ trans('servers.online') }}:</span>
+              <span class="gi-mono font-semibold text-body">{{ loading ? '—' : serverListStore.summary.online }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-danger" aria-hidden="true" />
+              <span class="text-muted">{{ trans('servers.offline') }}:</span>
+              <span class="gi-mono font-semibold text-body">{{ loading ? '—' : serverListStore.summary.offline }}</span>
+            </div>
+          </div>
+        </div>
+      </router-link>
+
+      <!-- Dedicated Nodes Summary Card (Admin) -->
+      <router-link
+        v-if="isAdmin"
+        :to="{ name: 'admin.nodes.index' }"
+        class="gi-focus-ring group flex flex-col justify-between rounded-card border border-border bg-surface p-5 no-underline transition-colors duration-150 hover:border-border-strong hover:bg-surface-raised"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="flex h-9 w-9 items-center justify-center rounded-[8px] border border-border bg-surface-raised text-accent">
+              <GIcon name="node" class="text-[15px]" />
+            </span>
+            <span class="text-[15px] font-semibold text-body group-hover:text-accent transition-colors">
+              {{ trans('sidebar.dedicated_servers') }}
+            </span>
+          </div>
+          <GIcon name="chevron-right" class="text-[12px] text-muted group-hover:text-body transition-colors" />
+        </div>
+
+        <div class="mt-5 flex items-baseline justify-between border-t border-border/60 pt-3.5">
+          <div>
+            <div class="text-[12px] text-muted">Total</div>
+            <div class="gi-mono mt-0.5 text-[24px] font-semibold leading-7 text-body">
+              <GIcon v-if="loading" name="loading" class="text-[16px] text-muted" />
+              <span v-else>{{ nodeTotal }}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-[13px]">
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-success" aria-hidden="true" />
+              <span class="text-muted">{{ trans('dedicated_servers.online') }}:</span>
+              <span class="gi-mono font-semibold text-body">{{ loading ? '—' : nodeListStore.summary.online }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-danger" aria-hidden="true" />
+              <span class="text-muted">{{ trans('dedicated_servers.offline') }}:</span>
+              <span class="gi-mono font-semibold text-body">{{ loading ? '—' : nodeListStore.summary.offline }}</span>
+            </div>
+          </div>
+        </div>
+      </router-link>
+
+      <!-- Plugin Home Buttons -->
       <template v-for="btn in homeButtons" :key="btn.pluginId + '-' + btn.name">
         <component
-            v-if="btn.component"
-            :is="btn.component"
-            v-bind="btn.props"
-            :plugin-id="btn.pluginId"
+          v-if="btn.component"
+          :is="btn.component"
+          v-bind="btn.props"
+          :plugin-id="btn.pluginId"
         />
-        <GButton
-            v-else
-            class="px-8 py-8 bg-stone-50 hover:bg-stone-100
-              border dark:border-stone-700 dark:bg-stone-800
-              dark:hover:bg-stone-900 m-2 h-28 sm:min-w-48 max-sm:w-full"
-            :route="btn.props.route"
+        <router-link
+          v-else
+          :to="btn.props.route"
+          class="gi-focus-ring group flex flex-col justify-between rounded-card border border-border bg-surface p-5 no-underline transition-colors duration-150 hover:border-border-strong hover:bg-surface-raised"
         >
-          <div class="text-lg">
-            <GIcon v-if="hasIcon(btn.icon)" :name="btn.icon" class="mr-1" />
-            <i v-else :class="btn.icon"></i>
-            {{ pluginsStore.resolvePluginText(btn.pluginId, btn.label) }}
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="flex h-9 w-9 items-center justify-center rounded-[8px] border border-border bg-surface-raised text-accent">
+                <GIcon v-if="hasIcon(btn.icon)" :name="btn.icon" class="text-[15px]" />
+                <i v-else :class="btn.icon" />
+              </span>
+              <span class="text-[15px] font-semibold text-body group-hover:text-accent transition-colors">
+                {{ pluginsStore.resolvePluginText(btn.pluginId, btn.label) }}
+              </span>
+            </div>
+            <GIcon name="chevron-right" class="text-[12px] text-muted" />
           </div>
-        </GButton>
+        </router-link>
       </template>
     </div>
 
+    <!-- System Versions Block (Admin) -->
+    <VersionsBlock v-if="isAdmin" class="mt-6" />
 
-  <VersionsBlock v-if="isAdmin" class="mt-10" />
+    <!-- Resources & Community Strip -->
+    <div class="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <!-- Documentation & API -->
+      <div class="rounded-card border border-border bg-surface p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 text-[14.5px] font-semibold text-body">
+            <GIcon name="book" class="text-[14px] text-muted" />
+            <span>{{ trans('home.need_help') }}</span>
+          </div>
+          <p class="mt-1 mb-0 text-[13px] text-muted">
+            {{ trans('home.resources_subtitle') }}
+          </p>
+        </div>
 
-  <div
-      class="w-full p-3 border border-stone-200 bg-stone-50 rounded-lg sm:p-4 dark:bg-stone-800 dark:border-stone-700"
-      :class="isAdmin ? 'mt-5' : 'mt-10'"
-  >
-    <div class="md:grid md:grid-cols-5 md:gap-4">
-      <h5 class="col-span-3 text-base inline-block align-middle font-semibold text-stone-900 dark:text-white max-md:mb-2">
-        <GIcon name="comments" class="mr-1" />
-        {{ trans('home.channels') }}
-      </h5>
-      <div class="col-span-2">
-        <a
-            type="button"
-            class="text-white bg-[#24A1DE] hover:bg-[#24A1DE]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://t.me/gameap"
+        <div class="mt-4 flex flex-wrap gap-2">
+          <GButton
+            color="white"
+            size="small"
+            :link="pageLanguage() === 'ru' ? 'https://docs.gameap.com/ru/' : 'https://docs.gameap.com/en/'"
             target="_blank"
-        >
-          <GIcon name="telegram" class="mr-1" />
-          Telegram
-        </a>
+            rel="noopener noreferrer"
+          >
+            <GIcon name="book" class="text-[12px] text-muted" />
+            <span>{{ trans('home.documentation') }}</span>
+          </GButton>
 
-        <a
-            type="button"
-            class="text-white bg-[#7289da] hover:bg-[#7289da]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://discord.gg/SqtHpZc"
+          <GButton
+            color="white"
+            size="small"
+            link="https://openapi.gameap.io/"
             target="_blank"
-        >
-          <GIcon name="discord" class="mr-1" />
-          Discord
-        </a>
-
-        <a
-            v-if="pageLanguage() === 'ru'"
-            type="button"
-            class="text-white bg-[#0077FF] hover:bg-[#0077FF]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://vk.com/gameap"
-            target="_blank"
-        >
-          <GIcon name="vk" class="mr-1" />
-          VKontakte
-        </a>
-
-        <a
-            type="button"
-            class="text-white bg-[#FF5700] hover:bg-[#FF5700]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://www.reddit.com/r/gameap/"
-            target="_blank"
-        >
-          <GIcon name="reddit" class="mr-1" />
-          Reddit
-        </a>
-
+            rel="noopener noreferrer"
+          >
+            <GIcon name="admin-panel" class="text-[12px] text-muted" />
+            <span>{{ trans('home.api_documentation') }}</span>
+          </GButton>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="w-full mt-5 p-3 border border-stone-200 bg-stone-50 rounded-lg sm:p-4 dark:bg-stone-800 dark:border-stone-700">
-    <div class="md:grid md:grid-cols-5 md:gap-4">
-      <h5 class="col-span-3 text-base inline-block align-middle font-semibold text-stone-900 dark:text-white max-md:mb-2">
-        <GIcon name="heart" class="mr-1" />
-        {{ trans('home.support_gameap') }}
-      </h5>
-      <div class="col-span-2">
-        <div class="flex">
-          <div>
-            <a
-                type="button"
-                class="text-white bg-[#F96854] hover:bg-[#F96854]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-                href="https://www.patreon.com/gameap"
-                target="_blank"
-            >
-              <GIcon name="patreon" class="mr-1" />
-              Patreon
-            </a>
-          </div>
+      <!-- Community Channels -->
+      <div class="rounded-card border border-border bg-surface p-5 flex flex-col justify-between">
+        <div class="flex items-center gap-2 text-[14.5px] font-semibold text-body">
+          <GIcon name="comments" class="text-[14px] text-muted" />
+          <span>{{ trans('home.channels') }}</span>
+        </div>
 
-          <div>
-            <a
-                type="button"
-                class="text-white bg-[#F15F2C] hover:bg-[#F15F2C]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-                href="https://boosty.to/gameap"
-                target="_blank"
-            >
-              <svg class="w-5 h-5" viewBox="0 0 235.6 292.2">
-                <path class="st0" fill="#FFFFFF" d="M44.3,164.5L76.9,51.6H127l-10.1,35c-0.1,0.2-0.2,0.4-0.3,0.6L90,179.6h24.8c-10.4,25.9-18.5,46.2-24.3,60.9
-		c-45.8-0.5-58.6-33.3-47.4-72.1 M90.7,240.6l60.4-86.9h-25.6l22.3-55.7c38.2,4,56.2,34.1,45.6,70.5
-		c-11.3,39.1-57.1,72.1-101.7,72.1C91.3,240.6,91,240.6,90.7,240.6z"/>
-              </svg>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <GButton
+            color="white"
+            size="small"
+            link="https://discord.gg/SqtHpZc"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GIcon name="discord" class="text-[13px] text-muted" />
+            <span>Discord</span>
+          </GButton>
 
-              Boosty
-            </a>
-          </div>
+          <GButton
+            color="white"
+            size="small"
+            link="https://t.me/gameap"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GIcon name="telegram" class="text-[13px] text-muted" />
+            <span>Telegram</span>
+          </GButton>
+
+          <GButton
+            v-if="pageLanguage() === 'ru'"
+            color="white"
+            size="small"
+            link="https://vk.com/gameap"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GIcon name="vk" class="text-[13px] text-muted" />
+            <span>VKontakte</span>
+          </GButton>
+
+          <GButton
+            color="white"
+            size="small"
+            link="https://www.reddit.com/r/gameap/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GIcon name="reddit" class="text-[13px] text-muted" />
+            <span>Reddit</span>
+          </GButton>
+        </div>
+      </div>
+
+      <!-- Support GameAP -->
+      <div class="rounded-card border border-border bg-surface p-5 flex flex-col justify-between">
+        <div class="flex items-center gap-2 text-[14.5px] font-semibold text-body">
+          <GIcon name="heart" class="text-[14px] text-muted" />
+          <span>{{ trans('home.support_gameap') }}</span>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <GButton
+            color="white"
+            size="small"
+            link="https://www.patreon.com/gameap"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GIcon name="patreon" class="text-[12px] text-muted" />
+            <span>Patreon</span>
+          </GButton>
+
+          <GButton
+            color="white"
+            size="small"
+            link="https://boosty.to/gameap"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span>Boosty</span>
+            <GIcon name="external-link" class="text-[11px] text-muted" />
+          </GButton>
         </div>
       </div>
     </div>
+
+    <PluginSlot v-if="pluginsStore.isInitialized" name="dashboard-widgets" :context="{ isAdmin }" />
   </div>
-
-  <div class="w-full mt-5 p-3 border border-stone-200 bg-stone-50 rounded-lg sm:p-4 dark:bg-stone-800 dark:border-stone-700">
-    <div class="md:grid md:grid-cols-5 md:gap-4">
-      <h5 class="col-span-3 text-base inline-block align-middle font-semibold text-stone-900 dark:text-white max-md:mb-2">
-        <GIcon name="question" class="mr-1" />
-        {{ trans('home.need_help') }}
-      </h5>
-      <div class="col-span-2">
-        <a
-            type="button"
-            class="text-white bg-sky-500 hover:bg-sky-400 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            :href=" (pageLanguage() === 'ru') ? 'https://docs.gameap.com/ru/' : 'https://docs.gameap.com/en/'"
-            target="_blank"
-        >
-          <GIcon name="book" class="mr-1" />
-          {{ trans('home.documentation') }}
-        </a>
-
-        <a
-            type="button"
-            class="text-white bg-sky-500 hover:bg-sky-400 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://openapi.gameap.io/"
-            target="_blank"
-        >
-          <GIcon name="book" class="mr-1" />
-          {{ trans('home.api_documentation') }}
-        </a>
-
-        <a
-            type="button"
-            class="text-white bg-[#7289da] hover:bg-[#7289da]/90 focus:outline-none rounded text-sm px-2 py-1 text-center inline-flex items-center me-1 mb-1 mr-2"
-            href="https://discord.gg/SqtHpZc"
-            target="_blank"
-        >
-          <GIcon name="discord" class="mr-1" />
-          Discord
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <PluginSlot v-if="pluginsStore.isInitialized" name="dashboard-widgets" :context="{ isAdmin }" />
 </template>
 
 <script setup>
-import {computed, onMounted} from "vue"
-import { GIcon, hasIcon } from "@gameap/ui"
-import GButton from "../components/GButton.vue"
-import PluginSlot from "../plugins/components/PluginSlot.vue"
-import VersionsBlock from "../components/blocks/VersionsBlock.vue"
-import {useAuthStore} from "@/store/auth"
-import {usePluginsStore} from "@/store/plugins"
-import {useNodeListStore} from "@/store/nodeList"
-import {useServerListStore} from "@/store/serverList"
-import {trans, pageLanguage} from "@/i18n/i18n"
-import {errorNotification} from "@/parts/dialogs";
+import { computed, onMounted } from 'vue'
+import { GBreadcrumbs, GPageHeader, GIcon, hasIcon } from '@gameap/ui'
+import GButton from '../components/GButton.vue'
+import PluginSlot from '../plugins/components/PluginSlot.vue'
+import VersionsBlock from '../components/blocks/VersionsBlock.vue'
+import { useAuthStore } from '@/store/auth'
+import { usePluginsStore } from '@/store/plugins'
+import { useNodeListStore } from '@/store/nodeList'
+import { useServerListStore } from '@/store/serverList'
+import { trans, pageLanguage } from '@/i18n/i18n'
+import { errorNotification } from '@/parts/dialogs'
 
 const authStore = useAuthStore()
 const nodeListStore = useNodeListStore()
 const serverListStore = useServerListStore()
 const pluginsStore = usePluginsStore()
 
-const isAdmin = computed(() => {
-  return authStore.isAdmin
+const breadcrumbs = computed(() => [
+  { route: '/', text: 'GameAP', icon: 'gameap' },
+  { text: trans('home.main') },
+])
+
+const isAdmin = computed(() => authStore.isAdmin)
+
+const loading = computed(() => serverListStore.loading || nodeListStore.loading)
+
+const serverTotal = computed(() => {
+  const s = serverListStore.summary
+  if (typeof s?.total === 'number') return s.total
+  return (s?.online || 0) + (s?.offline || 0)
 })
 
-const loading = computed(() => {
-  return serverListStore.loading || nodeListStore.loading
+const nodeTotal = computed(() => {
+  const n = nodeListStore.summary
+  if (typeof n?.total === 'number') return n.total
+  return (n?.online || 0) + (n?.offline || 0)
 })
 
-const homeButtons = computed(() => {
-  return pluginsStore.getSlotComponents('home-buttons')
-})
+const homeButtons = computed(() => pluginsStore.getSlotComponents('home-buttons'))
 
 onMounted(() => {
-  // A hard-fail MFA session is scoped to the enrollment endpoints — the
-  // summary calls would only produce 403s behind the enforcement modal.
   if (authStore.mfaNudge?.hard_fail) {
     return
   }
@@ -270,5 +331,4 @@ const fetchNodesSummary = () => {
     errorNotification(error)
   })
 }
-
 </script>

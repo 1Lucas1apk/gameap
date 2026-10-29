@@ -1,174 +1,202 @@
 <template>
-  <GBreadcrumbs :items="breadcrumbs"></GBreadcrumbs>
+  <div>
+    <GBreadcrumbs :items="breadcrumbs" />
 
-  <GButton color="green" size="middle" class="mb-5" data-testid="profile-edit-button" v-on:click="onClickUpdate()">
-    <GIcon name="edit" class="mr-1" />
-    <span>{{ trans('profile.edit')}}</span>
-  </GButton>
-
-  <GCard :title="trans('profile.profile')" class="mb-3">
-    <GTable>
-      <tbody>
-      <tr>
-        <td><strong>{{ trans('users.login') }}:</strong></td>
-        <td>{{ user.login }}</td>
-      </tr>
-      <tr>
-        <td><strong>Email:</strong></td>
-        <td>{{ user.email }}</td>
-      </tr>
-      <tr>
-        <td><strong>{{ trans('users.name') }}:</strong></td>
-        <td data-testid="profile-name-value">{{ user.name }}</td>
-      </tr>
-      <tr>
-        <td><strong>{{ trans('users.roles') }}:</strong></td>
-        <td>{{ user.roles?.join(', ')  }}</td>
-      </tr>
-      <tr>
-        <td><strong>{{ trans('profile.language') }}:</strong></td>
-        <td>{{ currentLanguageLabel }}</td>
-      </tr>
-      <PluginSlot
-          v-if="pluginsStore.isInitialized"
-          name="profile-info-rows"
-          :context="profileContext"
-      />
-      </tbody>
-    </GTable>
-  </GCard>
-
-  <GCard :title="trans('two_factor.title')" class="mb-3">
-    <p class="mb-3 text-sm text-stone-500 dark:text-stone-300">
-      {{ trans('two_factor.description') }}
-    </p>
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center gap-2">
-        <strong>{{ trans('two_factor.status') }}:</strong>
-        <GStatusBadge
-            :status="is2FAEnabled ? 'success' : 'canceled'"
-            :text="is2FAEnabled ? trans('two_factor.enabled') : trans('two_factor.disabled')"
-            data-testid="twofactor-status"
-        />
-      </div>
-      <div class="flex flex-wrap gap-2">
+    <GPageHeader
+      :title="trans('profile.profile')"
+      :description="trans('profile.page_description')"
+    >
+      <template #actions>
         <GButton
-            v-if="!is2FAEnabled"
-            color="green"
-            data-testid="twofactor-enable-button"
-            v-on:click="onEnable"
+          color="primary"
+          size="middle"
+          data-testid="profile-edit-button"
+          @click="onClickUpdate"
         >
-          <GIcon name="lock" class="mr-1" />
-          <span>{{ trans('two_factor.enable') }}</span>
+          <GIcon name="edit" class="text-[13px]" />
+          <span>{{ trans('profile.edit') }}</span>
         </GButton>
-        <template v-else>
-          <GButton
-              color="white"
-              data-testid="twofactor-regen-button"
-              v-on:click="onOpenRegen"
-          >
-            <GIcon name="refresh" class="mr-1" />
-            <span>{{ trans('two_factor.regenerate_recovery_codes') }}</span>
-          </GButton>
-          <GButton
-              color="red"
-              data-testid="twofactor-disable-button"
-              v-on:click="disableModalEnabled = true"
-          >
-            <GIcon name="delete" class="mr-1" />
-            <span>{{ trans('two_factor.disable') }}</span>
-          </GButton>
-        </template>
-      </div>
+      </template>
+    </GPageHeader>
+
+    <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+      <!-- Account Information Card -->
+      <GCard :title="trans('profile.profile')">
+        <GTable>
+          <tbody>
+            <tr>
+              <td class="w-40 text-secondary font-medium">{{ trans('users.login') }}</td>
+              <td class="gi-mono text-body">{{ user.login }}</td>
+            </tr>
+            <tr>
+              <td class="text-secondary font-medium">{{ trans('users.email') }}</td>
+              <td class="text-body">{{ user.email }}</td>
+            </tr>
+            <tr>
+              <td class="text-secondary font-medium">{{ trans('users.name') }}</td>
+              <td data-testid="profile-name-value" class="font-medium text-body">{{ user.name }}</td>
+            </tr>
+            <tr>
+              <td class="text-secondary font-medium">{{ trans('users.roles') }}</td>
+              <td>
+                <GStatusBadge color="blue" :text="user.roles?.join(', ')" />
+              </td>
+            </tr>
+            <tr>
+              <td class="text-secondary font-medium">{{ trans('profile.language') }}</td>
+              <td class="text-body">{{ currentLanguageLabel }}</td>
+            </tr>
+            <PluginSlot
+              v-if="pluginsStore.isInitialized"
+              name="profile-info-rows"
+              :context="profileContext"
+            />
+          </tbody>
+        </GTable>
+      </GCard>
+
+      <!-- Two-Factor Authentication Card -->
+      <GCard :title="trans('two_factor.title')">
+        <p class="mb-4 text-[13.5px] leading-5 text-secondary">
+          {{ trans('two_factor.description') }}
+        </p>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded-[8px] border border-border bg-topbar p-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-[13.5px] font-medium text-secondary">{{ trans('two_factor.status') }}:</span>
+            <GStatusBadge
+              :status="is2FAEnabled ? 'success' : 'canceled'"
+              :text="is2FAEnabled ? trans('two_factor.enabled') : trans('two_factor.disabled')"
+              data-testid="twofactor-status"
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <GButton
+              v-if="!is2FAEnabled"
+              color="primary"
+              size="small"
+              data-testid="twofactor-enable-button"
+              @click="onEnable"
+            >
+              <GIcon name="lock" class="text-[12px]" />
+              <span>{{ trans('two_factor.enable') }}</span>
+            </GButton>
+
+            <template v-else>
+              <GButton
+                color="white"
+                size="small"
+                data-testid="twofactor-regen-button"
+                @click="onOpenRegen"
+              >
+                <GIcon name="refresh" class="text-[12px]" />
+                <span>{{ trans('two_factor.regenerate_recovery_codes') }}</span>
+              </GButton>
+              <GButton
+                color="red"
+                size="small"
+                data-testid="twofactor-disable-button"
+                @click="disableModalEnabled = true"
+              >
+                <GIcon name="delete" class="text-[12px]" />
+                <span>{{ trans('two_factor.disable') }}</span>
+              </GButton>
+            </template>
+          </div>
+        </div>
+      </GCard>
     </div>
-  </GCard>
 
-  <PluginSlot
-      v-if="pluginsStore.isInitialized"
-      name="profile-blocks"
-      :context="profileContext"
-  />
+    <div class="mt-5">
+      <PluginSlot
+        v-if="pluginsStore.isInitialized"
+        name="profile-blocks"
+        :context="profileContext"
+      />
+    </div>
 
-  <GModal
+    <GModal
       v-model:show="updateProfileModalEnabled"
       :title="trans('profile.edit')"
       style="width: 600px"
-  >
-    <UpdateProfileForm v-model="updateProfileModel" v-on:update="onUpdate" />
-  </GModal>
+    >
+      <UpdateProfileForm v-model="updateProfileModel" @update="onUpdate" />
+    </GModal>
 
-  <GModal
+    <GModal
       v-model:show="setupModalEnabled"
       :title="trans('two_factor.setup_title')"
       style="width: 520px"
-  >
-    <TwoFactorSetupForm
+    >
+      <TwoFactorSetupForm
         :secret="twoFASetup.secret"
         :otpauth-uri="twoFASetup.otpauth_uri"
         :recovery-codes="twoFARecoveryCodes"
         @confirm="onConfirm"
         @done="onSetupDone"
-    />
-  </GModal>
+      />
+    </GModal>
 
-  <GModal
+    <GModal
       v-model:show="disableModalEnabled"
       :title="trans('two_factor.disable_title')"
       style="width: 520px"
-  >
-    <TwoFactorDisableForm @disable="onDisable" />
-  </GModal>
+    >
+      <TwoFactorDisableForm @disable="onDisable" />
+    </GModal>
 
-  <GModal
+    <GModal
       v-model:show="regenModalEnabled"
       :title="trans('two_factor.regenerate_recovery_codes')"
       style="width: 520px"
-  >
-    <TwoFactorSetupForm
+    >
+      <TwoFactorSetupForm
         v-if="twoFARecoveryCodes"
         :recovery-codes="twoFARecoveryCodes"
         @done="onRegenDone"
-    />
-    <div v-else>
-      <p class="mb-4 text-sm text-stone-500 dark:text-stone-300">
-        {{ trans('two_factor.regenerate_desc') }}
-      </p>
-      <n-form ref="regenFormRef" label-placement="top" :model="regenForm" :rules="regenRules">
-        <n-form-item :label="trans('two_factor.password')" path="password">
-          <n-input
+      />
+      <div v-else>
+        <p class="mb-4 text-sm text-secondary">
+          {{ trans('two_factor.regenerate_desc') }}
+        </p>
+        <n-form ref="regenFormRef" label-placement="top" :model="regenForm" :rules="regenRules">
+          <n-form-item :label="trans('two_factor.password')" path="password">
+            <n-input
               v-model:value="regenForm.password"
               type="password"
               show-password-on="click"
               :input-props="{ autocomplete: 'current-password' }"
               data-testid="twofactor-regen-password"
-          />
-        </n-form-item>
-      </n-form>
-      <div class="flex justify-end mt-4">
-        <GButton color="green" data-testid="twofactor-regen-submit" v-on:click="onRegen">
-          <GIcon name="refresh" class="mr-0.5" />
-          <span>{{ trans('two_factor.regenerate_recovery_codes') }}</span>
-        </GButton>
+            />
+          </n-form-item>
+        </n-form>
+        <div class="mt-4 flex justify-end">
+          <GButton color="primary" data-testid="twofactor-regen-submit" @click="onRegen">
+            <GIcon name="refresh" class="text-[12px]" />
+            <span>{{ trans('two_factor.regenerate_recovery_codes') }}</span>
+          </GButton>
+        </div>
       </div>
-    </div>
-  </GModal>
+    </GModal>
+  </div>
 </template>
 
 <script setup>
-import { GBreadcrumbs, GIcon, GModal, GCard, GTable, GStatusBadge } from "@gameap/ui"
-import {computed, ref} from "vue"
-import { NForm, NFormItem, NInput } from "naive-ui"
-import {trans, getCurrentLanguage, changeLanguage, getAvailableLanguages} from "@/i18n/i18n"
-import UpdateProfileForm from "./forms/UpdateProfileForm.vue";
-import TwoFactorSetupForm from "./forms/TwoFactorSetupForm.vue";
-import TwoFactorDisableForm from "./forms/TwoFactorDisableForm.vue";
-import {useAuthStore} from "@/store/auth";
-import {useUISettingsStore} from "@/store/uiSettings";
-import {usePluginsStore} from "@/store/plugins";
-import PluginSlot from "@/plugins/components/PluginSlot.vue";
-import GButton from "../components/GButton.vue";
-import {errorNotification, notification} from "@/parts/dialogs";
-import { requiredValidator } from "@/parts/validators";
+import { GBreadcrumbs, GPageHeader, GIcon, GModal, GCard, GTable, GStatusBadge } from '@gameap/ui'
+import { computed, ref } from 'vue'
+import { NForm, NFormItem, NInput } from 'naive-ui'
+import { trans, getCurrentLanguage, changeLanguage, getAvailableLanguages } from '@/i18n/i18n'
+import UpdateProfileForm from './forms/UpdateProfileForm.vue'
+import TwoFactorSetupForm from './forms/TwoFactorSetupForm.vue'
+import TwoFactorDisableForm from './forms/TwoFactorDisableForm.vue'
+import { useAuthStore } from '@/store/auth'
+import { useUISettingsStore } from '@/store/uiSettings'
+import { usePluginsStore } from '@/store/plugins'
+import PluginSlot from '@/plugins/components/PluginSlot.vue'
+import GButton from '../components/GButton.vue'
+import { errorNotification, notification } from '@/parts/dialogs'
+import { requiredValidator } from '@/parts/validators'
 
 const authStore = useAuthStore()
 const uiSettingsStore = useUISettingsStore()
@@ -177,20 +205,15 @@ const pluginsStore = usePluginsStore()
 const currentLanguageLabel = computed(() => {
   const lang = getCurrentLanguage()
   const language = getAvailableLanguages().find((l) => l.code === lang)
-
   return language?.native_name || language?.name || lang
 })
 
-const breadcrumbs = computed(() => {
-  return [
-    {'route':'/', 'text':'GameAP', 'icon': 'gameap'},
-    {'route':{name: 'profile'}, 'text':trans('profile.profile')},
-  ]
-})
+const breadcrumbs = computed(() => [
+  { route: '/', text: 'GameAP', icon: 'gameap' },
+  { text: trans('profile.profile') },
+])
 
-const user = computed(() => {
-  return authStore.user
-})
+const user = computed(() => authStore.user)
 
 const profileContext = computed(() => ({
   userId: authStore.user?.id,
@@ -207,7 +230,7 @@ const onClickUpdate = () => {
 
 const updateProfileModalEnabled = ref(false)
 const updateProfileModel = ref({
-  name: user.value.name,
+  name: user.value?.name || '',
   language: getCurrentLanguage(),
 })
 
@@ -215,7 +238,7 @@ const onUpdate = () => {
   const currentLang = getCurrentLanguage()
   const newLang = updateProfileModel.value.language
 
-  let profile = {
+  const profile = {
     name: updateProfileModel.value.name,
   }
 
@@ -224,34 +247,37 @@ const onUpdate = () => {
     profile.password = updateProfileModel.value.password
   }
 
-  authStore.saveProfile(profile).then(() => {
-    if (newLang && newLang !== currentLang) {
-      uiSettingsStore.setLanguage(newLang)
-      changeLanguage(newLang)
+  authStore
+    .saveProfile(profile)
+    .then(() => {
+      if (newLang && newLang !== currentLang) {
+        uiSettingsStore.setLanguage(newLang)
+        changeLanguage(newLang)
 
-      notification({
-        content: trans('profile.update_with_lang_success_msg'),
-        type: "success",
-      }, () => {
-        window.location.reload()
-      })
-    } else {
-      notification({
-        content: trans('profile.update_success_msg'),
-        type: "success",
-      })
-    }
+        notification(
+          {
+            content: trans('profile.update_with_lang_success_msg'),
+            type: 'success',
+          },
+          () => {
+            window.location.reload()
+          },
+        )
+      } else {
+        notification({
+          content: trans('profile.update_success_msg'),
+          type: 'success',
+        })
+      }
 
-    authStore.fetchProfile()
-
-    updateProfileModalEnabled.value = false
-  }).catch((error) => {
-    errorNotification(error)
-    updateProfileModalEnabled.value = false
-  })
+      authStore.fetchProfile()
+      updateProfileModalEnabled.value = false
+    })
+    .catch((error) => {
+      errorNotification(error)
+      updateProfileModalEnabled.value = false
+    })
 }
-
-// --- Two-factor authentication ---
 
 const is2FAEnabled = computed(() => authStore.is2FAEnabled)
 
@@ -272,17 +298,23 @@ const regenRules = {
 }
 
 const onEnable = () => {
-  authStore.setupTwoFactor().then((data) => {
-    twoFASetup.value = data
-    twoFARecoveryCodes.value = null
-    setupModalEnabled.value = true
-  }).catch(errorNotification)
+  authStore
+    .setupTwoFactor()
+    .then((data) => {
+      twoFASetup.value = data
+      twoFARecoveryCodes.value = null
+      setupModalEnabled.value = true
+    })
+    .catch(errorNotification)
 }
 
 const onConfirm = (code) => {
-  authStore.confirmTwoFactor(code).then((data) => {
-    twoFARecoveryCodes.value = data.recovery_codes
-  }).catch(errorNotification)
+  authStore
+    .confirmTwoFactor(code)
+    .then((data) => {
+      twoFARecoveryCodes.value = data.recovery_codes
+    })
+    .catch(errorNotification)
 }
 
 const onSetupDone = () => {
@@ -291,19 +323,22 @@ const onSetupDone = () => {
   authStore.fetchProfile()
   notification({
     content: trans('two_factor.enable_success'),
-    type: "success",
+    type: 'success',
   })
 }
 
 const onDisable = ({ password, code }) => {
-  authStore.disableTwoFactor(password, code).then(() => {
-    disableModalEnabled.value = false
-    authStore.fetchProfile()
-    notification({
-      content: trans('two_factor.disable_success'),
-      type: "success",
+  authStore
+    .disableTwoFactor(password, code)
+    .then(() => {
+      disableModalEnabled.value = false
+      authStore.fetchProfile()
+      notification({
+        content: trans('two_factor.disable_success'),
+        type: 'success',
+      })
     })
-  }).catch(errorNotification)
+    .catch(errorNotification)
 }
 
 const onOpenRegen = () => {
@@ -313,11 +348,17 @@ const onOpenRegen = () => {
 }
 
 const onRegen = () => {
-  regenFormRef.value.validate().then(() => {
-    authStore.regenerateRecoveryCodes(regenForm.value.password).then((data) => {
-      twoFARecoveryCodes.value = data.recovery_codes
-    }).catch(errorNotification)
-  }).catch(() => {})
+  regenFormRef.value
+    .validate()
+    .then(() => {
+      authStore
+        .regenerateRecoveryCodes(regenForm.value.password)
+        .then((data) => {
+          twoFARecoveryCodes.value = data.recovery_codes
+        })
+        .catch(errorNotification)
+    })
+    .catch(() => {})
 }
 
 const onRegenDone = () => {
@@ -325,8 +366,7 @@ const onRegenDone = () => {
   twoFARecoveryCodes.value = null
   notification({
     content: trans('two_factor.recovery_regenerated'),
-    type: "success",
+    type: 'success',
   })
 }
-
 </script>

@@ -65,6 +65,8 @@ export const useSettingsStore = defineStore('fm-settings', () => {
         it: Object.freeze(it),
         tr: Object.freeze(tr),
         fr: Object.freeze(fr),
+        pt: Object.freeze(pt_BR),
+        pt_BR: Object.freeze(pt_BR),
         'pt-BR': Object.freeze(pt_BR),
         'zh-TW': Object.freeze(zh_TW),
         pl: Object.freeze(pl),

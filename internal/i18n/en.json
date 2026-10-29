@@ -61,8 +61,9 @@
     "registration_not_allowed": "Registration not allowed.",
     "captcha_required": "Please complete the CAPTCHA verification.",
     "captcha_failed": "CAPTCHA verification failed. Please try again.",
-    "sso_signing_in": "Signing you in\u2026",
-    "sso_failed": "This sign-in link is no longer valid. Please log in with your password."
+    "sso_signing_in": "Signing you in…",
+    "sso_failed": "This sign-in link is no longer valid. Please log in with your password.",
+    "sign_in_subtitle": "Enter your credentials to access the management panel."
   },
   "client_certificates": {
     "title_create": "Create Certificate",
@@ -92,7 +93,9 @@
     "upload_success_msg": "Client Certificate uploaded successfully.",
     "create_success_msg": "Client Certificate created successfully",
     "delete_success_msg": "Client Certificate deleted successfully",
-    "private_key_not_correspond": "Private key not corresponds to a certificate"
+    "private_key_not_correspond": "Private key not corresponds to a certificate",
+    "page_description": "Manage TLS client certificates used to authenticate connections with GameAP nodes.",
+    "empty_title": "No client certificates uploaded"
   },
   "dedicated_servers": {
     "title_list": "Dedicated servers list",
@@ -178,7 +181,17 @@
     "tab_overview": "Overview",
     "tab_metrics": "Metrics",
     "no_metrics_data": "No metrics data",
-    "work_path": "Work path"
+    "work_path": "Work path",
+    "page_description": "Manage physical and virtual host nodes running the GameAP Daemon.",
+    "add_node": "Add server",
+    "empty_title": "No dedicated servers registered",
+    "empty_description": "Connect your first host node with GameAP Daemon to provision server instances.",
+    "no_results_title": "No matching dedicated servers",
+    "no_results_description": "No host nodes match your current search or filter criteria.",
+    "metrics_unavailable": "Metrics unavailable",
+    "install_github": "Install from GitHub source",
+    "branch": "Branch",
+    "search_placeholder": "Search dedicated servers…"
   },
   "games": {
     "var_type": "Type",
@@ -312,7 +325,11 @@
     "export_success_msg": "Game exported successfully",
     "override_settings": "Override settings",
     "override_name_placeholder": "Leave empty to use original",
-    "override_code_placeholder": "Leave empty to generate automatically"
+    "override_code_placeholder": "Leave empty to generate automatically",
+    "page_description": "Configure supported engines, mods, SteamCMD repositories, and startup templates.",
+    "empty_title": "No games registered",
+    "no_results_title": "No games found",
+    "search_placeholder": "Search games or codes…"
   },
   "gdaemon_tasks": {
     "title_list": "GDaemon Tasks List",
@@ -343,7 +360,9 @@
     "common_canceled_msg": "Task canceled",
     "empty_server_start_command": "Empty server start command",
     "empty_server_start_command_doc": "<br>See the documentation to fix the error — \n<a target=\"_blank\" href=\"https://docs.gameap.com/en/troubleshooting.html#empty-server-start-command\">Empty server start command</a>",
-    "long_waiting_doc": "It looks like the wait is stuck. If the status does not change for a long time, try looking \n        at the documentation to fix the error — <a target=\"_blank\" href=\"https://docs.gameap.com/en/troubleshooting.html#the-information-modal-window-does-not-change-for-a-long-time\">The information modal window does not change for a long time</a>"
+    "long_waiting_doc": "It looks like the wait is stuck. If the status does not change for a long time, try looking \n        at the documentation to fix the error — <a target=\"_blank\" href=\"https://docs.gameap.com/en/troubleshooting.html#the-information-modal-window-does-not-change-for-a-long-time\">The information modal window does not change for a long time</a>",
+    "page_description": "Inspect background tasks executed across dedicated nodes in real time.",
+    "empty_title": "No tasks found"
   },
   "home": {
     "main": "Main",
@@ -374,7 +393,18 @@
     "send_bug_success_msg": "Error message sent successfully",
     "required_extenstions_are_missed": "Required PHP extenstions are missed: :extensions",
     "nodes_is_not_available": "Some dedicated servers are not available. Failed to connect to the following dedicated servers: :nodes",
-    "not_writable_directories": "The following directories are not writable: :paths"
+    "not_writable_directories": "The following directories are not writable: :paths",
+    "page_description": "Operational overview of your infrastructure, instances, and system components.",
+    "total_servers": "Game servers",
+    "online_servers": "Online",
+    "offline_servers": "Offline",
+    "dedicated_nodes": "Dedicated servers",
+    "quick_actions": "Quick access",
+    "resources_and_help": "Resources & documentation",
+    "active_instances": "Online instances",
+    "offline_instances": "Offline instances",
+    "healthy_nodes": "Online nodes",
+    "resources_subtitle": "Official documentation, community channels, and issue tracking."
   },
   "hub": {
     "title": "GameAP Hub",
@@ -522,7 +552,17 @@
     "or_click_to_select": "or click to select",
     "details": "Details",
     "select_all": "Select all",
-    "deselect_all": "Deselect all"
+    "deselect_all": "Deselect all",
+    "light_mode": "Light mode",
+    "dark_mode": "Dark mode",
+    "language": "Language",
+    "open_menu": "Open navigation menu",
+    "close_menu": "Close navigation menu",
+    "retry": "Try again",
+    "clear_filters": "Clear filters",
+    "copied": "Copied to clipboard",
+    "loading": "Loading…",
+    "check_form": "Please check the highlighted fields."
   },
   "metadata_keys": {
     "title": "Metadata keys",
@@ -662,7 +702,13 @@
     "permission_listen_events": "Receive events",
     "permission_secrets": "Encrypted secrets",
     "permission_node_commands": "Run commands on nodes",
-    "permission_ssh": "Connect to hosts over SSH"
+    "permission_ssh": "Connect to hosts over SSH",
+    "page_description": "Extend GameAP with installed modules, hub packages, and custom integrations.",
+    "loading_plugin": "Loading plugin…",
+    "api_version": "API Version",
+    "wasm_limit": ".wasm, max 100 MB",
+    "search_placeholder": "Search plugins…",
+    "max_size_hint": ".wasm, max 100 MB"
   },
   "navbar": {
     "main": "Home",
@@ -714,7 +760,8 @@
     "password_not_match_msg": "Your current password does not matches with the password you provided. Please try again.",
     "password_change_success_msg": "Password changed successfully",
     "update_success_msg": "Profile updated successfully",
-    "update_with_lang_success_msg": "Profile updated successfully. Reload the page to apply the new language."
+    "update_with_lang_success_msg": "Profile updated successfully. Reload the page to apply the new language.",
+    "page_description": "Manage your account details, password, and two-factor authentication security."
   },
   "rcon": {
     "console": "RCON console",
@@ -852,7 +899,26 @@
     "statistics_disk_usage": "Disk usage",
     "statistics_load_average": "Load average",
     "statistics_all": "all",
-    "statistics_open": "Open metrics"
+    "statistics_open": "Open metrics",
+    "page_description": "Monitor, control, and manage your game and application server instances.",
+    "admin_page_description": "Manage all game server instances, node assignments, ports, and installation states.",
+    "search_placeholder": "Search servers…",
+    "empty_title": "No game servers registered",
+    "empty_description": "Add your first server to start managing your applications.",
+    "empty_description_user": "No game servers have been assigned to your account yet.",
+    "no_results_title": "No matching servers found",
+    "no_results_description": "No servers match your current search or filter criteria.",
+    "load_error_title": "Unable to load servers",
+    "load_error_description": "Check your connection to the panel and try again.",
+    "actions_column": "Actions",
+    "address": "Address",
+    "server_column": "Server",
+    "filter_status_all": "All",
+    "clear_filters": "Clear filters",
+    "empty_user_description": "No server instances have been assigned to your account yet.",
+    "column_server": "Server",
+    "column_address": "Address",
+    "column_actions": "Actions"
   },
   "servers_tasks": {
     "tasks_title": "Tasks",
@@ -947,7 +1013,10 @@
     "help": "Help",
     "report_bug": "Report bug",
     "maximize": "Maximize",
-    "minimize": "Minimize"
+    "minimize": "Minimize",
+    "expand": "Expand menu",
+    "role_admin": "Administrator",
+    "role_user": "User"
   },
   "tokens": {
     "generate_token": "Generate New Token",
@@ -971,9 +1040,13 @@
     "settings-manage": "Manage game server settings",
     "read": "Read GameAP Daemon task",
     "abilities_required": "You must select at least one ability",
-    "abilities_invalid_format": "Invalid abilities format"
+    "abilities_invalid_format": "Invalid abilities format",
+    "page_description": "Create and revoke personal access tokens for programmatic API access.",
+    "empty_title": "No access tokens generated"
   },
   "users": {
+    "role_admin": "Administrator",
+    "role_user": "User",
     "title_list": "Users List",
     "title_create": "Create User",
     "title_edit": "Edit User",
@@ -1010,7 +1083,11 @@
     "server_attached_msg": "Server attached",
     "server_detached_msg": "Server detached",
     "confirm_server_detach": "Detach the server from the user?",
-    "delete_self_error_msg": "You can not delete yourself"
+    "delete_self_error_msg": "You can not delete yourself",
+    "page_description": "Manage panel accounts, administrative roles, and per-server permissions.",
+    "empty_title": "No users found",
+    "search_placeholder": "Search users by login, name, or email…",
+    "email": "Email"
   },
   "validation": {
     "between": {

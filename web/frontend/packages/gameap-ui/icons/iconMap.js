@@ -59,6 +59,20 @@ export const defaultIconMap = {
   "external-link": "fa-solid fa-external-link",
   "angle-double-right": "fa-solid fa-angle-double-right",
   "chevron-double-right": "fa-solid fa-angle-double-right",
+  "sidebar-collapse": "fa-solid fa-angles-left",
+  "sidebar-expand": "fa-solid fa-angles-right",
+  "bars": "fa-solid fa-bars",
+  "menu": "fa-solid fa-bars",
+  "home": "fa-solid fa-house",
+  "dashboard": "fa-solid fa-gauge-high",
+  "gauge": "fa-solid fa-gauge-high",
+  "globe": "fa-solid fa-globe",
+  "sliders": "fa-solid fa-sliders",
+  "filter": "fa-solid fa-filter",
+  "inbox": "fa-solid fa-inbox",
+  "shield": "fa-solid fa-shield-halved",
+  "alert": "fa-solid fa-circle-exclamation",
+  "circle-exclamation": "fa-solid fa-circle-exclamation",
 
   // ===== Status Icons =====
   "check": "fa-solid fa-check",
@@ -85,6 +99,7 @@ export const defaultIconMap = {
 
   // ===== Server/Infrastructure Icons =====
   "server": "fa-solid fa-server",
+  "servers": "fa-solid fa-server",
   "node": "fa-solid fa-hard-drive",
   "hard-drive": "fa-solid fa-hard-drive",
   "hdd": "fa-solid fa-hard-drive",

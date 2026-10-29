@@ -1,233 +1,150 @@
 <template>
-  <nav class="fixed z-50 top-0 w-full bg-chrome">
-    <div class="w-full px-2 sm:px-6 lg:px-8">
-      <div class="relative flex h-16 items-center justify-between">
+  <header class="sticky top-0 z-20 flex h-16 w-full shrink-0 items-center justify-between border-b border-border bg-topbar px-4 sm:px-6 lg:px-8">
+    <!-- Left: Mobile Drawer Trigger & Compact Brand (only < 1024px) -->
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        class="gi-focus-ring inline-flex h-10 w-10 items-center justify-center rounded-[7px] text-secondary transition-colors duration-150 hover:bg-surface-hover hover:text-body lg:hidden"
+        :aria-label="trans('sidebar.expand')"
+        @click="uiSettingsStore.toggleMobileMenu()"
+      >
+        <GIcon name="bars" class="text-[16px]" />
+      </button>
 
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <!-- Mobile menu button-->
+      <router-link
+        :to="{ name: 'home' }"
+        class="flex items-center lg:hidden no-underline"
+      >
+        <img
+          src="/images/gap_logo_white_mini.png"
+          class="logo-mini gi-brand-logo"
+          alt="GameAP"
+        />
+      </router-link>
+    </div>
+
+    <!-- Right: Global Utilities (Plugins, Language, Theme, Help) -->
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <PluginSlot
+        v-if="pluginsStore.isInitialized"
+        name="navbar-items"
+        :context="{ isAdmin }"
+      />
+
+      <!-- Language Selector -->
+      <MainNavbarDropdown
+        v-if="languageItems.length > 0 && languageItems[0].length > 1"
+        :button-text="currentLangLabel"
+        button-icon="globe"
+        :items="languageItems"
+      />
+
+      <!-- Theme Toggle -->
+      <n-tooltip placement="bottom">
+        <template #trigger>
           <button
-              type="button"
-              @click="showMobileMenu = !showMobileMenu"
-              class="relative inline-flex items-center justify-center rounded-md p-2 text-stone-400 hover:bg-chrome-hover hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
+            type="button"
+            data-testid="theme-toggle"
+            class="gi-focus-ring inline-flex h-9 w-9 items-center justify-center rounded-btn text-secondary transition-colors duration-150 hover:bg-surface-hover hover:text-body"
+            :aria-label="themeTooltip"
+            @click="switchTheme"
           >
-            <span class="absolute -inset-0.5"></span>
-            <span class="sr-only">Open main menu</span>
-            <!--
-              Icon when menu is closed.
-
-              Menu open: "hidden", Menu closed: "block"
-            -->
-            <svg class="block h-6 w-6" fill="none" viewBox="0 0  24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-            <!--
-              Icon when menu is open.
-
-              Menu open: "block", Menu closed: "hidden"
-            -->
-            <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <GIcon v-if="currentTheme === 'dark'" name="sun" class="text-[15px]" />
+            <GIcon v-else name="moon" class="text-[15px]" />
           </button>
-        </div>
-
-        <div class="flex flex-1 items-center sm:items-stretch sm:justify-start ml-12 sm:ml-0">
-          <div class="flex flex-shrink-0 items-center">
-            <a id="brand-link" class="navbar-brand" href="/">
-              <img src="/images/gap_logo_white_mini.png" class="logo-mini sm:hidden" alt="GameAP">
-              <img src="/images/gap_logo_white.png" class="logo hidden sm:block" alt="GameAP">
-            </a>
-          </div>
-        </div>
-
-        <div class="flex items-center">
-          <PluginSlot
-              v-if="pluginsStore.isInitialized"
-              name="navbar-items"
-              :context="{ isAdmin }"
-          />
-
-          <div class="flex items-center md:mr-4 gap-x-1.5 text-white hover:bg-chrome-item px-5 py-2 rounded cursor-pointer" v-on:click="switchTheme()">
-            <GIcon v-if="currentTheme === 'dark'" name="sun" />
-            <GIcon v-if="currentTheme === 'light'" name="moon" />
-          </div>
-
-          <MainNavbarDropdown
-              class="md:mr-4"
-              :button-text="trans('navbar.help')"
-              button-icon="help"
-              :items="helpItems"
-          ></MainNavbarDropdown>
-
-          <MainNavbarDropdown
-              class="md:mr-4"
-              :button-text="user.name"
-              button-icon="user"
-              :items="[
-                  [
-                      {
-                        icon: 'profile',
-                        label: trans('navbar.profile'),
-                        route: {name: 'profile'},
-                      },
-                      {
-                        icon: 'key',
-                        label: trans('tokens.tokens'),
-                        route: {name: 'tokens'},
-                      }
-                  ],
-                  [
-                      {
-                        icon: 'logout',
-                        label: trans('navbar.sign_out'),
-                        onClick: logout,
-                      }
-                  ]
-                ]"
-          ></MainNavbarDropdown>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mobile menu, show/hide based on menu state. -->
-    <div class="sm:hidden" v-if="showMobileMenu">
-      <div class="space-y-1 px-2 pb-3 pt-2">
-        <router-link
-            v-for="link in serversLinks"
-            :key="'server-' + link.route.name"
-            @click="showMobileMenu = !showMobileMenu"
-            :to="link.route"
-            class="bg-chrome-item text-white flex items-center rounded px-3 py-2 font-medium"
-            aria-current="page"
-        >
-          <GIcon :name="link.icon" class="ml-1 shrink-0" />
-          <span class="ml-2">{{ link.text }}</span>
-        </router-link>
-        <router-link
-            v-for="item in pluginServersMenuItems"
-            :key="'plugin-server-' + item.pluginId + '-' + item.text"
-            @click="showMobileMenu = !showMobileMenu"
-            :to="item.route"
-            class="bg-chrome-item text-white flex items-center rounded px-3 py-2 font-medium"
-            aria-current="page"
-        >
-          <GIcon :name="item.icon" class="ml-1 shrink-0" />
-          <span class="ml-2">{{ pluginsStore.resolvePluginText(item.pluginId, item.text) }}</span>
-        </router-link>
-
-        <template v-if="isAdmin">
-          <router-link
-              v-for="item in adminMenuItems"
-              :key="'admin-' + item.key"
-              @click="showMobileMenu = !showMobileMenu"
-              :to="item.route"
-              class="bg-chrome-item text-white flex items-center rounded px-3 py-2 font-medium"
-              aria-current="page"
-          >
-            <GIcon :name="item.icon" class="ml-1 shrink-0" />
-            <span class="ml-2">{{ item.text }}</span>
-          </router-link>
         </template>
+        {{ themeTooltip }}
+      </n-tooltip>
 
-        <template v-for="(items, section) in customPluginSections" :key="'section-' + section">
-          <div class="text-stone-400 px-3 py-1 text-sm">{{ section }}</div>
-          <router-link
-              v-for="item in items"
-              :key="'plugin-custom-' + item.pluginId + '-' + item.text"
-              @click="showMobileMenu = !showMobileMenu"
-              :to="item.route"
-              class="bg-chrome-item text-white flex items-center rounded px-3 py-2 font-medium"
-              aria-current="page"
-          >
-            <GIcon :name="item.icon" class="ml-1 shrink-0" />
-            <span class="ml-2">{{ pluginsStore.resolvePluginText(item.pluginId, item.text) }}</span>
-          </router-link>
-        </template>
-      </div>
+      <!-- Help & Documentation -->
+      <MainNavbarDropdown
+        :button-text="trans('navbar.help')"
+        button-icon="help"
+        :items="helpItems"
+      />
     </div>
-  </nav>
+  </header>
 </template>
 
 <script setup>
-import {trans, pageLanguage} from "@/i18n/i18n"
-import {computed, ref} from 'vue'
-import MainNavbarDropdown from "./MainNavbarDropdown.vue";
-import {serversLinks} from "./bars";
-import {useAuthStore} from "@/store/auth";
-import {useAdminMenuItems} from "@/composables/useAdminMenuItems";
-import {useUISettingsStore} from "@/store/uiSettings";
-import {usePluginsStore} from "@/store/plugins";
-import PluginSlot from "@/plugins/components/PluginSlot.vue";
-import {errorNotification} from "@/parts/dialogs";
-import {hubUrl} from "@/parts/hub";
+import { computed } from 'vue'
+import { NTooltip } from 'naive-ui'
+import { GIcon } from '@gameap/ui'
+import { trans, pageLanguage, getAvailableLanguages, getCurrentLanguage } from '@/i18n/i18n'
+import MainNavbarDropdown from './MainNavbarDropdown.vue'
+import { useAuthStore } from '@/store/auth'
+import { useUISettingsStore } from '@/store/uiSettings'
+import { usePluginsStore } from '@/store/plugins'
+import PluginSlot from '@/plugins/components/PluginSlot.vue'
+import { hubUrl } from '@/parts/hub'
 
 const authStore = useAuthStore()
 const uiSettingsStore = useUISettingsStore()
 const pluginsStore = usePluginsStore()
 
-const user = computed(() => {
-    return authStore.user
-})
-
-const currentTheme = computed(() => {
-    return uiSettingsStore.currentTheme
-})
-
-const showMobileMenu = ref(false)
-
 const isAdmin = computed(() => authStore.isAdmin)
+const currentTheme = computed(() => uiSettingsStore.currentTheme)
 
-const helpItems = computed(() => {
-    const items = [
-        {
-            icon: 'book',
-            label: trans('navbar.documentation'),
-            link: pageLanguage() === 'ru' ? 'https://docs.gameap.com/ru/' : 'https://docs.gameap.com/en/',
-        },
-    ]
-
-    if (isAdmin.value) {
-        items.push({
-            icon: 'box-open',
-            label: trans('hub.title'),
-            link: hubUrl(),
-        })
-    }
-
-    items.push({
-        icon: 'admin-panel',
-        label: trans('navbar.api_documentation'),
-        link: 'https://openapi.gameap.io/',
-    })
-
-    return [items]
+const themeTooltip = computed(() => {
+  return currentTheme.value === 'dark'
+    ? trans('profile.theme_light')
+    : trans('profile.theme_dark')
 })
 
-const pluginServersMenuItems = computed(() => pluginsStore.getMenuItems('servers'))
+const currentLangCode = computed(() => getCurrentLanguage() || 'en')
 
-const adminMenuItems = useAdminMenuItems()
-
-const customPluginSections = computed(() => {
-    const items = pluginsStore.getMenuItems('custom')
-    return items.reduce((acc, item) => {
-        const section = item.section || 'Plugins'
-        if (!acc[section]) acc[section] = []
-        acc[section].push(item)
-        return acc
-    }, {})
+const currentLangLabel = computed(() => {
+  return currentLangCode.value.toUpperCase()
 })
 
-const switchTheme = () => {
-    uiSettingsStore.toggleTheme()
+const languageItems = computed(() => {
+  const langs = getAvailableLanguages()
+  if (!Array.isArray(langs) || langs.length === 0) {
+    return []
+  }
+
+  return [
+    langs.map((l) => ({
+      label: l.native_name || l.name || l.code.toUpperCase(),
+      active: l.code === currentLangCode.value,
+      onClick: () => selectLanguage(l.code),
+    })),
+  ]
+})
+
+function selectLanguage(code) {
+  if (code === currentLangCode.value) return
+  uiSettingsStore.setLanguage(code)
+  window.location.reload()
 }
 
-const logout = () => {
-    authStore.logout().then(() => {
-        window.location.href = '/'
-    }).catch((error) => {
-        errorNotification(error)
+const helpItems = computed(() => {
+  const items = [
+    {
+      icon: 'book',
+      label: trans('navbar.documentation'),
+      link: pageLanguage() === 'ru' ? 'https://docs.gameap.com/ru/' : 'https://docs.gameap.com/en/',
+    },
+  ]
+
+  if (isAdmin.value) {
+    items.push({
+      icon: 'box-open',
+      label: trans('hub.title'),
+      link: hubUrl(),
     })
+  }
+
+  items.push({
+    icon: 'admin-panel',
+    label: trans('navbar.api_documentation'),
+    link: 'https://openapi.gameap.io/',
+  })
+
+  return [items]
+})
+
+function switchTheme() {
+  uiSettingsStore.toggleTheme()
 }
 </script>

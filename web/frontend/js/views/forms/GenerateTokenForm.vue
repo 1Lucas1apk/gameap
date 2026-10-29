@@ -94,7 +94,7 @@ const rules = {
     validator: (rule, value) => {
       if (isEmpty(value)) {
         return new Error(
-            trans('tokens.validation.abilities_required')
+            trans('tokens.abilities_required')
         )
       }
     }

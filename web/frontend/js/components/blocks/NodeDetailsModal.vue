@@ -13,7 +13,7 @@
     <template #header>
       <div class="flex items-center gap-3 flex-wrap">
         <GIcon :name="osIcon" class="text-xl" />
-        <span class="font-semibold">{{ node?.name || `node #${nodeId}` }}</span>
+        <span class="font-semibold">{{ node?.name || `#${nodeId}` }}</span>
         <GStatusBadge
             :status="online ? 'success' : 'error'"
             :text="online ? trans('dedicated_servers.online') : trans('dedicated_servers.offline')"

@@ -1,12 +1,18 @@
-// GameAP
+// GameAP — Graphite Infrastructure
 @use './gameap' as *;
+
+// Self-hosted IBM Plex Sans & IBM Plex Mono
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-// Fonts
-// @import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
 
 // Font Awesome
 @import '@fortawesome/fontawesome-free/css/all.css';

@@ -1,56 +1,65 @@
 <template>
-  <GBreadcrumbs :items="breadcrumbs"></GBreadcrumbs>
+  <div>
+    <GBreadcrumbs :items="breadcrumbs" />
 
-  <n-tabs v-model:value="activeTab" type="line" animated @update:value="onTabChange">
-    <n-tab-pane name="installed" :tab="trans('plugins.installed')">
-      <div class="flex mb-4">
-        <GButton color="blue" @click="showUploadModal">
-          <GIcon name="upload" class="mr-1" />
-          {{ trans('plugins.upload') }}
+    <GPageHeader
+      :title="trans('plugins.plugins')"
+      :description="trans('plugins.page_description')"
+    >
+      <template #actions>
+        <GButton color="primary" size="middle" @click="showUploadModal">
+          <GIcon name="upload" class="text-[13px]" />
+          <span>{{ trans('plugins.upload') }}</span>
         </GButton>
-      </div>
+      </template>
+    </GPageHeader>
 
-      <GDataTable
-          :columns="installedColumns"
-          :data="enrichedInstalledPlugins"
-          :loading="loading"
-          :pagination="installedPagination"
-          :scroll-x="isSmallScreen ? 460 : 1140"
-      >
-        <template #loading>
-          <Loading />
-        </template>
-        <template #empty>
-          <GEmpty :description="trans('plugins.no_plugins')"></GEmpty>
-        </template>
-      </GDataTable>
-    </n-tab-pane>
+    <n-tabs v-model:value="activeTab" type="line" animated @update:value="onTabChange">
+      <n-tab-pane name="installed" :tab="trans('plugins.installed')">
+        <div class="mt-3">
+          <GDataTable
+            :columns="installedColumns"
+            :data="enrichedInstalledPlugins"
+            :loading="loading"
+            :pagination="installedPagination"
+            :scroll-x="isSmallScreen ? 460 : 1140"
+          >
+            <template #empty>
+              <GEmpty icon="plug" :title="trans('plugins.no_plugins')">
+                <GButton color="primary" size="middle" @click="showUploadModal">
+                  <GIcon name="upload" class="text-[13px]" />
+                  <span>{{ trans('plugins.upload') }}</span>
+                </GButton>
+              </GEmpty>
+            </template>
+          </GDataTable>
+        </div>
+      </n-tab-pane>
 
-    <n-tab-pane name="store" :tab="trans('plugins.store')">
-      <GDataTable
-          :columns="storeColumns"
-          :data="plugins"
-          :loading="loading"
-          :pagination="false"
-          :scroll-x="isSmallScreen ? 460 : 920"
-      >
-        <template #loading>
-          <Loading />
-        </template>
-        <template #empty>
-          <GEmpty :description="trans('plugins.no_plugins')"></GEmpty>
-        </template>
-      </GDataTable>
+      <n-tab-pane name="store" :tab="trans('plugins.store')">
+        <div class="mt-3">
+          <GDataTable
+            :columns="storeColumns"
+            :data="plugins"
+            :loading="loading"
+            :pagination="false"
+            :scroll-x="isSmallScreen ? 460 : 920"
+          >
+            <template #empty>
+              <GEmpty icon="plug" :title="trans('plugins.no_plugins')" />
+            </template>
+          </GDataTable>
 
-      <div class="flex justify-center mt-4" v-if="lastPage > 1">
-        <n-pagination
-            v-model:page="storePage"
-            :page-count="lastPage"
-            @update:page="onStorePageChange"
-        />
-      </div>
-    </n-tab-pane>
-  </n-tabs>
+          <div v-if="lastPage > 1" class="mt-5 flex justify-center">
+            <n-pagination
+              v-model:page="storePage"
+              :page-count="lastPage"
+              @update:page="onStorePageChange"
+            />
+          </div>
+        </div>
+      </n-tab-pane>
+    </n-tabs>
 
   <GModal
       v-model:show="detailsModalVisible"
@@ -86,10 +95,11 @@
       v-model:show="uploadModalVisible"
       @installed="onPluginInstalled"
   />
+  </div>
 </template>
 
 <script setup>
-import { GBreadcrumbs, Loading, GIcon, GDataTable, GModal, GEmpty, GStatusBadge } from "@gameap/ui"
+import { GBreadcrumbs, GPageHeader, Loading, GIcon, GDataTable, GModal, GEmpty, GStatusBadge } from "@gameap/ui"
 import { computed, ref, onMounted, h } from "vue"
 import { trans } from "@/i18n/i18n"
 import GButton from "@/components/GButton.vue"

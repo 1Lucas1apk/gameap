@@ -24,7 +24,7 @@
         <td>{{ task.created_at }}</td>
       </tr>
       <tr>
-        <td><strong>{{ trans('gdaemon_tasks.created') }}:</strong></td>
+        <td><strong>{{ trans('gdaemon_tasks.updated') }}:</strong></td>
         <td>{{ task.updated_at }}</td>
       </tr>
       </tbody>

@@ -1,36 +1,261 @@
+/* Graphite Infrastructure Typography Scale */
+.gi-page-title {
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 38px;
+    letter-spacing: -0.015em;
+    color: var(--gameap-text);
+}
+
+.gi-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    letter-spacing: -0.01em;
+    color: var(--gameap-text);
+}
+
+.gi-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 22px;
+    color: var(--gameap-text);
+}
+
+.gi-helper-text {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+    color: var(--gameap-text-muted);
+}
+
+/* Accessible keyboard focus ring */
+.gi-focus-ring:focus-visible {
+    outline: 2px solid var(--gameap-accent);
+    outline-offset: 2px;
+}
+
 .btn-close {
-    @apply ms-auto -mx-1.5 -my-1.5 bg-surface text-stone-400 hover:text-stone-900
-    rounded-lg focus:ring-2 focus:ring-stone-300 p-1.5 hover:bg-stone-100
-    inline-flex items-center justify-center h-8 w-8
-    dark:text-stone-500 dark:hover:text-white dark:hover:bg-stone-900;
+    @apply ms-auto -mx-1.5 -my-1.5 bg-transparent text-muted hover:text-body
+    rounded-[7px] p-1.5 hover:bg-surface-hover transition-colors duration-150
+    inline-flex items-center justify-center h-8 w-8;
+}
+
+.btn-close:focus-visible {
+    outline: 2px solid var(--gameap-accent);
+    outline-offset: 2px;
 }
 
 .form-control {
-    @apply block appearance-none w-full py-1 px-2 mb-1 leading-normal bg-surface text-stone-800 border border-stone-200 rounded
-    dark:text-stone-300 dark:border-stone-600 dark:placeholder-stone-400 dark:focus:ring-stone-500 dark:focus:border-stone-500;
+    @apply block appearance-none w-full py-2 px-3 mb-1 text-sm leading-5 bg-surface text-body border rounded-[8px]
+    placeholder:text-muted transition-colors duration-150;
+    border-color: var(--gameap-border);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--gameap-accent);
+    box-shadow: 0 0 0 2px var(--gameap-selection-outline-weak);
 }
 
 .form-select {
-    @apply block w-full p-1.5 mb-6 text-sm text-body border border-stone-300 rounded focus:ring-info focus:border-info dark:bg-stone-700 dark:border-stone-600 dark:placeholder-stone-400;
+    @apply block w-full py-2 px-3 mb-4 text-sm text-body bg-surface border rounded-[8px] placeholder:text-muted transition-colors duration-150;
+    border-color: var(--gameap-border);
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: var(--gameap-accent);
+    box-shadow: 0 0 0 2px var(--gameap-selection-outline-weak);
 }
 
 .stone-table {
-    @apply w-full text-left rtl:text-right border dark:border-0 text-stone-700 dark:text-stone-400;
+    @apply w-full text-left rtl:text-right border rounded-[8px] overflow-hidden text-secondary;
+    border-color: var(--gameap-border);
+    background-color: var(--gameap-table-bg);
 }
 
 .stone-table-header {
-    @apply text-stone-700 uppercase bg-stone-50 rounded-lg dark:bg-stone-700 dark:text-stone-400
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--gameap-text-secondary);
+    background-color: var(--gameap-table-header);
 }
 
 .stone-table-row {
-    @apply odd:bg-white odd:dark:bg-stone-900 even:bg-stone-50 even:dark:bg-stone-800 border-b;
+    border-bottom: 1px solid var(--gameap-border);
+    background-color: var(--gameap-table-bg);
+}
+
+.stone-table-row:hover {
+    background-color: var(--gameap-table-row-hover);
 }
 
 .g-card-header {
-    @apply bg-stone-100 dark:bg-stone-700;
+    background-color: var(--gameap-surface-raised);
+    border-bottom: 1px solid var(--gameap-border);
+}
+
+/* Naive-UI DataTable Graphite Infrastructure Overrides */
+.gi-data-table-wrap {
+    border: 1px solid var(--gameap-border);
+    border-radius: var(--gameap-radius-card);
+    background-color: var(--gameap-table-bg);
+    overflow: hidden;
+}
+
+.gi-data-table-wrap .n-data-table .n-data-table-th {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--gameap-text-secondary);
+    background-color: var(--gameap-table-header);
+    border-bottom: 1px solid var(--gameap-border);
+}
+
+.gi-data-table-wrap .n-data-table .n-data-table-td {
+    min-height: 62px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--gameap-text);
+    background-color: var(--gameap-table-bg);
+    border-bottom: 1px solid color-mix(in srgb, var(--gameap-border) 68%, transparent);
+    transition: background-color 150ms ease;
+}
+
+.gi-data-table-wrap .n-data-table .n-data-table-tr:last-child .n-data-table-td {
+    border-bottom: none;
+}
+
+.gi-data-table-wrap .n-data-table .n-data-table-tr:hover .n-data-table-td {
+    background-color: var(--gameap-table-row-hover) !important;
+}
+
+.gi-data-table-wrap .n-data-table__pagination {
+    padding: 12px 16px;
+    margin-top: 0 !important;
+    border-top: 1px solid var(--gameap-border);
+    background-color: var(--gameap-table-header);
 }
 
 /* Fixed-width modals (600-1000px inline styles) must never exceed the phone viewport. */
 .n-modal {
     max-width: 94vw;
+}
+
+/* Graphite Infrastructure Button Variants */
+.gi-btn-primary {
+    background-color: var(--gameap-accent);
+    color: var(--gameap-primary-fg);
+    border-color: transparent;
+    font-weight: 600;
+}
+
+.gi-btn-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--gameap-accent-hover);
+    color: var(--gameap-primary-fg);
+}
+
+.gi-btn-secondary {
+    background-color: var(--gameap-surface);
+    color: var(--gameap-text);
+    border-color: var(--gameap-border);
+}
+
+.gi-btn-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--gameap-surface-hover);
+    border-color: var(--gameap-border-strong);
+    color: var(--gameap-text);
+}
+
+.gi-btn-elevated {
+    background-color: var(--gameap-surface-raised);
+    color: var(--gameap-text);
+    border-color: var(--gameap-border-strong);
+}
+
+.gi-btn-elevated:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--gameap-surface-hover);
+    color: var(--gameap-text);
+}
+
+.gi-btn-success {
+    background-color: var(--gameap-success-soft);
+    color: var(--gameap-success-soft-text);
+    border-color: color-mix(in srgb, var(--gameap-success) 38%, transparent);
+}
+
+.gi-btn-success:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: color-mix(in srgb, var(--gameap-success) 24%, var(--gameap-surface));
+    border-color: color-mix(in srgb, var(--gameap-success) 56%, transparent);
+}
+
+.gi-btn-danger {
+    background-color: var(--gameap-danger-soft);
+    color: var(--gameap-danger-soft-text);
+    border-color: color-mix(in srgb, var(--gameap-danger) 38%, transparent);
+}
+
+.gi-btn-danger:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: color-mix(in srgb, var(--gameap-danger) 24%, var(--gameap-surface));
+    border-color: color-mix(in srgb, var(--gameap-danger) 56%, transparent);
+}
+
+.gi-btn-warning {
+    background-color: var(--gameap-warning-soft);
+    color: var(--gameap-warning-soft-text);
+    border-color: color-mix(in srgb, var(--gameap-warning) 38%, transparent);
+}
+
+.gi-btn-warning:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: color-mix(in srgb, var(--gameap-warning) 24%, var(--gameap-surface));
+    border-color: color-mix(in srgb, var(--gameap-warning) 56%, transparent);
+}
+
+.gi-btn-info {
+    background-color: var(--gameap-info-soft);
+    color: var(--gameap-info-soft-text);
+    border-color: color-mix(in srgb, var(--gameap-info) 38%, transparent);
+}
+
+.gi-btn-info:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: color-mix(in srgb, var(--gameap-info) 24%, var(--gameap-surface));
+    border-color: color-mix(in srgb, var(--gameap-info) 56%, transparent);
+}
+
+.gi-btn-ghost {
+    background-color: transparent;
+    color: var(--gameap-text-secondary);
+    border-color: transparent;
+}
+
+.gi-btn-ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--gameap-surface-hover);
+    color: var(--gameap-text);
+}
+
+/* Unified 40px Search Input */
+.gi-toolbar-search {
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--gameap-sidebar-bg);
+    border: 1px solid var(--gameap-border);
+    color: var(--gameap-text);
+    font-size: 14px;
+    line-height: 20px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.gi-toolbar-search::placeholder {
+    color: var(--gameap-text-muted);
+}
+
+.gi-toolbar-search:focus {
+    outline: none;
+    border-color: var(--gameap-accent);
+    box-shadow: 0 0 0 2px var(--gameap-selection-outline-weak);
 }

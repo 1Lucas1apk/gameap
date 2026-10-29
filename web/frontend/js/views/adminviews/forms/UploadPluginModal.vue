@@ -15,16 +15,16 @@
         >
           <n-upload-dragger>
             <div class="flex flex-col items-center py-4">
-              <GIcon name="upload" class="text-4xl text-stone-400 mb-2" />
-              <p class="text-sm">{{ trans('plugins.upload_hint') }}</p>
-              <p class="text-xs text-stone-500 mt-1">.wasm, max 100MB</p>
+              <GIcon name="upload" class="text-3xl text-muted mb-2" />
+              <p class="text-sm text-body">{{ trans('plugins.upload_hint') }}</p>
+              <p class="text-xs text-muted mt-1">{{ trans('plugins.max_size_hint') }}</p>
             </div>
           </n-upload-dragger>
         </n-upload>
 
         <div class="flex justify-end gap-2 mt-4">
-          <GButton color="gray" @click="close">{{ trans('main.close') }}</GButton>
-          <GButton color="blue" :disabled="!selectedFile" @click="validatePlugin">
+          <GButton color="white" @click="close">{{ trans('main.close') }}</GButton>
+          <GButton color="primary" :disabled="!selectedFile" @click="validatePlugin">
             {{ trans('plugins.validate') }}
           </GButton>
         </div>
@@ -53,24 +53,24 @@
           {{ uploadResult.description }}
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 p-3 bg-stone-100 dark:bg-stone-800 rounded-lg">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 p-3.5 bg-surface border border-border rounded-[8px]">
           <div v-if="uploadResult.author">
-            <span class="text-xs text-stone-500">{{ trans('plugins.author') }}</span>
-            <p class="text-sm font-medium">{{ uploadResult.author }}</p>
+            <span class="text-xs text-muted">{{ trans('plugins.author') }}</span>
+            <p class="text-sm font-medium text-body">{{ uploadResult.author }}</p>
           </div>
           <div>
-            <span class="text-xs text-stone-500">API Version</span>
-            <p class="text-sm font-medium">{{ uploadResult.api_version || '-' }}</p>
+            <span class="text-xs text-muted">{{ trans('plugins.api_version') }}</span>
+            <p class="text-sm font-medium gi-mono text-body">{{ uploadResult.api_version || '-' }}</p>
           </div>
           <div>
-            <span class="text-xs text-stone-500">{{ trans('plugins.features') }}</span>
-            <p class="text-sm font-medium">
+            <span class="text-xs text-muted">{{ trans('plugins.features') }}</span>
+            <p class="text-sm font-medium text-body">
               {{ formatFeatures(uploadResult) }}
             </p>
           </div>
           <div>
-            <span class="text-xs text-stone-500">Frontend</span>
-            <p class="text-sm font-medium">
+            <span class="text-xs text-muted">UI</span>
+            <p class="text-sm font-medium gi-mono text-body">
               {{ uploadResult.has_frontend_bundle ? bytesToHuman(uploadResult.frontend_bundle_size) : '-' }}
             </p>
           </div>
@@ -248,8 +248,8 @@ function permissionLabel(permission) {
 function formatFeatures(result) {
   const features = []
   if (result.http_routes?.length > 0) features.push('HTTP')
-  if (result.server_abilities?.length > 0) features.push('Commands')
-  if (result.has_frontend_bundle) features.push('Frontend')
+  if (result.server_abilities?.length > 0) features.push(trans('servers.commands'))
+  if (result.has_frontend_bundle) features.push('UI')
   return features.length > 0 ? features.join(', ') : '-'
 }
 

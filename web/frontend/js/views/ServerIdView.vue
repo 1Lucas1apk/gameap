@@ -1,16 +1,57 @@
 <template>
-  <GBreadcrumbs :items="breadcrumbs"></GBreadcrumbs>
+  <div>
+    <GBreadcrumbs :items="breadcrumbs" />
 
-  <InactiveServer v-if="!loading && (accessBlocked || !isServerEnabled)" :server="server" :access-blocked="accessBlocked"></InactiveServer>
-  <n-tabs
-    v-else
-    v-model:value="activeTab"
-    type="line"
-    :class="(!isServerEnabled) ? 'hidden': ''"
-    animated
-    display-directive="show:lazy"
-    @update:value="onTabChange"
-  >
+    <GPageHeader
+      v-if="server?.name"
+      :title="server.name"
+    >
+      <template #badge>
+        <GStatusBadge
+          :status="serverOnline ? 'success' : 'error'"
+          :text="serverOnline ? trans('servers.active') : trans('servers.inactive')"
+        />
+      </template>
+
+      <template #description>
+        <span class="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+          <span v-if="server.game?.name" class="inline-flex items-center gap-1.5 text-secondary">
+            <GGameIcon :game="server.game?.code || ''" />
+            <span>{{ server.game.name }}</span>
+          </span>
+          <span v-if="server.server_ip" class="gi-mono text-secondary">
+            {{ server.server_ip }}:{{ server.server_port }}
+          </span>
+        </span>
+      </template>
+
+      <template #actions>
+        <GButton
+          v-if="isAdmin"
+          color="white"
+          size="middle"
+          :route="{ name: 'admin.servers.edit', params: { id: serverId } }"
+        >
+          <GIcon name="settings" class="text-[13px] text-muted" />
+          <span>{{ trans('servers.admin') }}</span>
+        </GButton>
+      </template>
+    </GPageHeader>
+
+    <InactiveServer
+      v-if="!loading && (accessBlocked || !isServerEnabled)"
+      :server="server"
+      :access-blocked="accessBlocked"
+    />
+    <n-tabs
+      v-else
+      v-model:value="activeTab"
+      type="line"
+      :class="!isServerEnabled ? 'hidden' : ''"
+      animated
+      display-directive="show:lazy"
+      @update:value="onTabChange"
+    >
     <n-tab-pane name="control">
       <template #tab>
         <GIcon name="play" class="mr-1" />
@@ -264,12 +305,15 @@
       :online="serverOnline"
       :cpu-limit-percent="cpuLimitPercent"
   />
+  </div>
 </template>
 
 <script setup>
 import {computed, h, defineAsyncComponent, onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {storeToRefs} from "pinia";
+import { NCard, NTabs, NTabPane } from "naive-ui";
+import GButton from "../components/GButton.vue";
 import ServerControlButton from "./servertabs/ServerControlButton.vue";
 import ServerStatisticsStrip from "./servertabs/ServerStatisticsStrip.vue";
 
@@ -305,7 +349,7 @@ const FileManager = defineAsyncComponent(() =>
     import('../filemanager/FileManager.vue')
 )
 
-import { GBreadcrumbs, Loading, GIcon, GGameIcon } from "@gameap/ui";
+import { GBreadcrumbs, GPageHeader, GStatusBadge, Loading, GIcon, GGameIcon } from "@gameap/ui";
 
 import {useServerStore} from "@/store/server"
 import {useServerRconStore} from "@/store/serverRcon"

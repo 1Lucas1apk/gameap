@@ -35,6 +35,7 @@ import {
     GMenuItem,
     GMenuItems,
     GModal,
+    GPageHeader,
     GStatusBadge,
     GSwitch,
     GTable,
@@ -133,6 +134,7 @@ const authStore = useAuthStore()
 
 // Register global components BEFORE mounting
 app.component('GBreadcrumbs', GBreadcrumbs);
+app.component('GPageHeader', GPageHeader);
 app.component('GCard', GCard);
 app.component('GDataTable', GDataTable);
 app.component('GDeletableList', GDeletableList);
