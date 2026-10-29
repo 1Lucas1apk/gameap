@@ -250,6 +250,19 @@ const columns = computed(() => {
               }),
             )
           }
+
+          if (canUpdate(row.id)) {
+            buttons.push(
+              h(ServerControlButton, {
+                command: 'reinstall',
+                'button-color': 'red',
+                'button-size': 'small',
+                icon: 'refresh',
+                text: trans('servers.reinstall'),
+                'server-id': row.id,
+              }),
+            )
+          }
         }
       }
 

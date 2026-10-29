@@ -108,8 +108,8 @@
                   v-if="serverStore.canUpdate"
                   :server-id="serverId"
                   button="m-1"
-                  button-color="black"
-                  icon="rcon"
+                  button-color="red"
+                  icon="refresh"
                   :text="trans('servers.reinstall')"
               ></ServerControlButton>
 

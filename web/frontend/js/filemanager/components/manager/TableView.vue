@@ -6,9 +6,61 @@
         v-on:click.self="clearOnEmpty"
         v-on:keydown="onKeyDown"
     >
+        <!-- Floating/Sticky Batch Selection Toolbar -->
+        <transition name="fm-slide-fade">
+            <div v-if="totalSelectedCount > 0" class="fm-selection-bar">
+                <div class="fm-selection-bar__left">
+                    <span class="fm-selection-badge">{{ totalSelectedCount }}</span>
+                    <span class="fm-selection-label">
+                        {{ totalSelectedCount === 1 ? '1 item selecionado' : `${totalSelectedCount} itens selecionados` }}
+                        <span v-if="selectedSizeFormatted" class="fm-selection-size">({{ selectedSizeFormatted }})</span>
+                    </span>
+                </div>
+                <div class="fm-selection-bar__actions">
+                    <button
+                        type="button"
+                        class="fm-btn-action fm-btn-action--zip"
+                        title="Compactar selecionados em um arquivo ZIP"
+                        @click="openZipModal"
+                    >
+                        <GIcon name="file-zipper" />
+                        <span>Criar ZIP</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="fm-btn-action fm-btn-action--delete"
+                        title="Excluir selecionados de uma vez"
+                        @click="openDeleteModal"
+                    >
+                        <GIcon name="trash" />
+                        <span>Excluir</span>
+                    </button>
+                    <button
+                        type="button"
+                        class="fm-btn-action fm-btn-action--clear"
+                        title="Desmarcar tudo"
+                        @click="clearSelection"
+                    >
+                        <GIcon name="close" />
+                        <span>Desmarcar tudo</span>
+                    </button>
+                </div>
+            </div>
+        </transition>
+
         <table class="fm-table">
             <thead>
                 <tr>
+                    <th class="fm-th fm-th--check">
+                        <input
+                            type="checkbox"
+                            class="fm-checkbox fm-checkbox--all"
+                            :checked="isAllSelected"
+                            :indeterminate.prop="isIndeterminate"
+                            title="Selecionar todos / Desmarcar todos"
+                            @click.stop="toggleSelectAll"
+                        />
+                    </th>
                     <th
                         class="fm-th fm-th--name"
                         v-bind:class="{ 'fm-th--active': sortSettings.field === 'name' }"
@@ -64,7 +116,7 @@
             </thead>
             <tbody>
                 <tr v-if="!isRootPath" class="fm-row fm-row--up" v-on:click="levelUp">
-                    <td colspan="5" class="fm-content-item">
+                    <td colspan="6" class="fm-content-item">
                         <GIcon name="arrow-turn-up" />
                         <span class="ml-2 text-muted">..</span>
                     </td>
@@ -86,14 +138,17 @@
                     v-on:dblclick="handleSelectDirectory(directory.path)"
                     v-on:contextmenu.prevent="contextMenu(directory, $event)"
                 >
+                    <td class="fm-cell--check" @click.stop="onCheckboxClick('directories', directory.path, $event)">
+                        <input
+                            type="checkbox"
+                            class="fm-checkbox"
+                            :checked="checkSelect('directories', directory.path)"
+                            @change.stop="onCheckboxClick('directories', directory.path, $event)"
+                        />
+                    </td>
                     <td class="fm-content-item unselectable">
                         <span class="fm-row-icon">
-                            <GIcon
-                                v-if="checkSelect('directories', directory.path)"
-                                name="check"
-                                class="fm-row-check"
-                            />
-                            <GIcon v-else name="folder-solid" class="fm-row-glyph fm-row-glyph--dir" />
+                            <GIcon name="folder-solid" class="fm-row-glyph fm-row-glyph--dir" />
                         </span>
                         <span class="fm-row-name"><HighlightedName v-bind:text="directory.basename" v-bind:query="highlightQuery" /></span>
                     </td>
@@ -119,15 +174,17 @@
                     v-on:dblclick="selectAction(file)"
                     v-on:contextmenu.prevent="contextMenu(file, $event)"
                 >
+                    <td class="fm-cell--check" @click.stop="onCheckboxClick('files', file.path, $event)">
+                        <input
+                            type="checkbox"
+                            class="fm-checkbox"
+                            :checked="checkSelect('files', file.path)"
+                            @change.stop="onCheckboxClick('files', file.path, $event)"
+                        />
+                    </td>
                     <td class="fm-content-item unselectable">
                         <span class="fm-row-icon">
                             <GIcon
-                                v-if="checkSelect('files', file.path)"
-                                name="check"
-                                class="fm-row-check"
-                            />
-                            <GIcon
-                                v-else
                                 v-bind:name="extensionToIcon(file.extension)"
                                 class="fm-row-glyph fm-row-glyph--file"
                             />
@@ -146,6 +203,9 @@
                         class="fm-row fm-row--skeleton"
                         aria-hidden="true"
                     >
+                        <td class="fm-cell--check">
+                            <span class="fm-skel fm-skel--check" />
+                        </td>
                         <td class="fm-content-item">
                             <span class="fm-row-icon">
                                 <span class="fm-skel fm-skel--icon" />
@@ -162,7 +222,7 @@
                     </tr>
                 </template>
                 <tr v-else-if="showError" class="fm-row fm-row--error">
-                    <td colspan="5">
+                    <td colspan="6">
                         <div class="fm-empty fm-empty--error">
                             <GIcon name="warning" class="fm-empty-icon fm-empty-icon--error" />
                             <p class="fm-empty-title">{{ lang.manager.errorTitle }}</p>
@@ -179,7 +239,7 @@
                     </td>
                 </tr>
                 <tr v-else-if="isEmpty" class="fm-row fm-row--empty">
-                    <td colspan="5">
+                    <td colspan="6">
                         <div class="fm-empty">
                             <GIcon name="folder-open" class="fm-empty-icon" />
                             <p class="fm-empty-title">{{ lang.manager.empty }}</p>
@@ -232,6 +292,11 @@ const {
     clearError,
     sortBy,
     selectRangeTo,
+    toggleSelect,
+    selectAllVisible,
+    clearSelection: storeClearSelection,
+    selectedFilesSize,
+    openModal,
 } = useManager(props.manager)
 
 const sortSettings = computed(() => sort.value)
@@ -242,6 +307,42 @@ const showSkeleton = computed(() => loading.value && !hasContent.value)
 const showError = computed(() => !loading.value && !!error.value && !hasContent.value)
 const isEmpty = computed(() => !loading.value && !error.value && !hasContent.value)
 const errorMessage = computed(() => error.value?.message || lang.value.manager.errorGeneric)
+
+const totalVisibleCount = computed(() => directories.value.length + files.value.length)
+const totalSelectedCount = computed(() => (selected.value?.directories?.length || 0) + (selected.value?.files?.length || 0))
+const isAllSelected = computed(() => totalVisibleCount.value > 0 && totalSelectedCount.value === totalVisibleCount.value)
+const isIndeterminate = computed(() => totalSelectedCount.value > 0 && totalSelectedCount.value < totalVisibleCount.value)
+const selectedSizeFormatted = computed(() => {
+    const size = selectedFilesSize.value
+    return size > 0 ? bytesToHuman(size) : null
+})
+
+function toggleSelectAll() {
+    if (isAllSelected.value) {
+        storeClearSelection()
+    } else {
+        selectAllVisible()
+    }
+}
+
+function onCheckboxClick(type, path, event) {
+    if (event) {
+        event.stopPropagation()
+    }
+    toggleSelect(type, path)
+}
+
+function openZipModal() {
+    openModal('ZipModal')
+}
+
+function openDeleteModal() {
+    openModal('DeleteModal')
+}
+
+function clearSelection() {
+    storeClearSelection()
+}
 
 async function onRetry() {
     clearError()
@@ -470,6 +571,127 @@ function onKeyDown(event) {
     }
 }
 
+.fm-selection-bar {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: #1c1917;
+    color: #f5f5f4;
+    border-bottom: 1px solid #292524;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    .fm-selection-bar__left {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        min-width: 0;
+    }
+
+    .fm-selection-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 1.5rem;
+        height: 1.5rem;
+        padding: 0 0.4rem;
+        border-radius: 9999px;
+        background: #ea580c;
+        color: #ffffff;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .fm-selection-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #fafaf9;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fm-selection-size {
+        color: #a8a29e;
+        font-size: 0.8rem;
+        font-weight: normal;
+        margin-left: 0.25rem;
+    }
+
+    .fm-selection-bar__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .fm-btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 120ms ease;
+
+        &--zip {
+            background: #292524;
+            color: #f5f5f4;
+            border-color: #44403c;
+
+            &:hover {
+                background: #44403c;
+                border-color: #78716c;
+            }
+        }
+
+        &--delete {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+
+            &:hover {
+                background: #ef4444;
+                color: #ffffff;
+                border-color: #ef4444;
+            }
+        }
+
+        &--clear {
+            background: transparent;
+            color: #a8a29e;
+
+            &:hover {
+                background: #292524;
+                color: #f5f5f4;
+            }
+        }
+    }
+}
+
+.dark .fm-selection-bar {
+    background: #0c0a09;
+    border-bottom-color: #292524;
+}
+
+.fm-slide-fade-enter-active,
+.fm-slide-fade-leave-active {
+    transition: all 180ms ease;
+}
+
+.fm-slide-fade-enter-from,
+.fm-slide-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
 .fm-table {
     @apply w-full text-left text-sm;
     border-collapse: separate;
@@ -495,6 +717,78 @@ function onKeyDown(event) {
         }
     }
 
+    .fm-th--check,
+    .fm-cell--check {
+        width: 44px;
+        min-width: 44px;
+        max-width: 44px;
+        text-align: center;
+        padding: 0.5rem 0.5rem;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+
+    .fm-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1.15rem;
+        height: 1.15rem;
+        border: 1.5px solid var(--gameap-border, #d6d3d1);
+        border-radius: 4px;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        vertical-align: middle;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 120ms ease;
+
+        &:hover {
+            border-color: var(--gameap-stone-500, #78716c);
+        }
+
+        &:checked {
+            background-color: var(--gameap-stone-900, #1c1917);
+            border-color: var(--gameap-stone-900, #1c1917);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        &:indeterminate {
+            background-color: var(--gameap-stone-900, #1c1917);
+            border-color: var(--gameap-stone-900, #1c1917);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    }
+
+    .dark .fm-checkbox {
+        border-color: var(--gameap-stone-600, #57534e);
+
+        &:hover {
+            border-color: var(--gameap-stone-400, #a8a29e);
+        }
+
+        &:checked,
+        &:indeterminate {
+            background-color: var(--gameap-stone-100, #f5f5f4);
+            border-color: var(--gameap-stone-100, #f5f5f4);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%231c1917' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+        }
+
+        &:indeterminate {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%231c1917' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8h8' stroke='%231c1917' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        }
+    }
+
+    .fm-skel--check {
+        width: 1.15rem;
+        height: 1.15rem;
+    }
+
     .fm-th--active {
         @apply text-body font-semibold;
     }
@@ -513,25 +807,27 @@ function onKeyDown(event) {
         opacity: 0.4;
     }
 
-    .fm-th--name { width: 60%; }
-    .fm-th--size { width: 9%; }
-    .fm-th--type { width: 9%; }
-    .fm-th--date { width: 16%; }
+    .fm-th--name { width: 55%; }
+    .fm-th--size { width: 10%; }
+    .fm-th--type { width: 10%; }
+    .fm-th--date { width: 15%; }
     .fm-th--perm { width: 10ch; }
 
-    // Phones: keep name + size, the rest returns at >=768px.
+    // Phones: keep check + name + size, the rest returns at >=768px.
     @media (max-width: 767px) {
-        th:nth-child(3),
-        td:nth-child(3),
         th:nth-child(4),
         td:nth-child(4),
         th:nth-child(5),
-        td:nth-child(5) {
+        td:nth-child(5),
+        th:nth-child(6),
+        td:nth-child(6) {
             display: none;
         }
 
-        .fm-th--name { width: 70%; }
-        .fm-th--size { width: 30%; }
+        .fm-th--check,
+        .fm-cell--check { width: 36px; min-width: 36px; padding: 0.5rem 0.25rem; }
+        .fm-th--name { width: 65%; }
+        .fm-th--size { width: 35%; }
     }
 
     td {
